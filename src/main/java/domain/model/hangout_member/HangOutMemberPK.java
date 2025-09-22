@@ -5,37 +5,36 @@ import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
 @Embeddable
 public class HangOutMemberPK implements Serializable {
 
     @Column(name = "user_id")
-    private UUID userId;
+    private Long userId;
 
     @Column(name = "hangout_id")
-    private UUID hangOutId;
+    private Long hangOutId;
 
     public HangOutMemberPK() {}
 
-    public HangOutMemberPK(UUID userId, UUID hangOutId) {
+    public HangOutMemberPK(Long userId, Long hangOutId) {
         this.userId = userId;
         this.hangOutId = hangOutId;
     }
 
-    public UUID getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public UUID getHangOutId() {
+    public Long getHangOutId() {
         return hangOutId;
     }
 
-    public void setHangOutId(UUID hangOutId) {
+    public void setHangOutId(Long hangOutId) {
         this.hangOutId = hangOutId;
     }
 

@@ -5,14 +5,13 @@ import domain.model.user.User;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Entity
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expense_id", nullable = false)
@@ -25,10 +24,10 @@ public class Payment {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public Expense getExpense() {

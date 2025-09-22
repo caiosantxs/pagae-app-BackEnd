@@ -3,15 +3,13 @@ package domain.model.hangout;
 import domain.model.user.User;
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "hangouts")
 public class HangOut {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String title;
@@ -23,10 +21,10 @@ public class HangOut {
     @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
     private User creator;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getTitle() {

@@ -5,7 +5,6 @@ import domain.model.user.User;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Entity
 @Table(name = "expense_shares")
@@ -13,7 +12,7 @@ public class ExpenseShare {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expense_id", referencedColumnName = "id", nullable = false)
@@ -33,11 +32,11 @@ public class ExpenseShare {
         this.isPaid = false;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
