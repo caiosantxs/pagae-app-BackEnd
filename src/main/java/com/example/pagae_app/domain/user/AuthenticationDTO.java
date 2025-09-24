@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "DTO for authentication")
 public record AuthenticationDTO(
-        @Schema(description = "Login from user", example = "caio")
+        @Schema(description = "Login from user", example = "caio.samtxs")
         String login,
 
-        @Schema(description = "User password", example = "123456")
+        @Schema(description = "User password", example = "123456789")
         String password
 ) {
 }
