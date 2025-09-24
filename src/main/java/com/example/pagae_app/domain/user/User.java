@@ -31,6 +31,10 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     private UserRole role;
 
+    public User() {
+
+    }
+
     public Long getId() {
         return id;
     }
@@ -61,6 +65,8 @@ public class User implements UserDetails {
     public void setLogin(String login) {
         this.login = login;
     }
+    public UserRole getRole() {return role;}
+    public void setRole(UserRole role) { this.role = role; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
