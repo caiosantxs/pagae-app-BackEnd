@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "DTO for returning public user data")
 public record UserResponseDTO(
+
         @Schema(description = "User's unique identifier", example = "101")
         Long id,
 
@@ -14,5 +15,14 @@ public record UserResponseDTO(
         String login,
 
         @Schema(description = "User's unique email", example = "ana.silva@example.com")
-        String email
-) {}
+        String email,
+
+        @Schema(description = "User's role", example = "ADMIN")
+        UserRole role
+) {
+        public UserResponseDTO(User user){
+                this(
+                        user.getId(), user.getName(), user.getLogin(), user.getEmail(), user.getRole()
+                );
+        }
+}

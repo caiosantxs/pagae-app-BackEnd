@@ -1,9 +1,9 @@
 package com.example.pagae_app.controllers;
 
-import com.example.pagae_app.domain.user.AuthenticationDTO;
-import com.example.pagae_app.domain.user.RegisterDTO;
-import com.example.pagae_app.domain.user.User;
+import com.example.pagae_app.domain.user.*;
+import com.example.pagae_app.infra.security.TokenService;
 import com.example.pagae_app.repositories.UserRepository;
+import com.example.pagae_app.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,35 +22,28 @@ public class AuthenticationController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private TokenService tokenService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
         var userNamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(userNamePassword);
 
-        return ResponseEntity.ok().body(auth);
+        var token = tokenService.generateToken((User) auth.getPrincipal());
+
+        return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO data){
         if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
-        String encryptedPassword = passwordEncoder.encode(data.password());
-
-        User newUser = new User();
-        newUser.setLogin(data.login());
-        newUser.setName(data.name());
-        newUser.setEmail(data.email());
-        newUser.setRole(data.role());
-
-        newUser.setPassword(encryptedPassword);
-
-        this.userRepository.save(newUser);
+        UserResponseDTO newUser = userService.create(data);
 
         return ResponseEntity.ok().body(newUser);
     }
