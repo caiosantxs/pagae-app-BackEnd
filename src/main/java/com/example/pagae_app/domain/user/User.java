@@ -31,6 +31,14 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     private UserRole role;
 
+    public User(RegisterDTO data, String encryptedPassword) {
+        this.login = data.login();
+        this.name = data.name();
+        this.email = data.email();
+        this.password = encryptedPassword;
+        this.role = data.role();
+    }
+
     public User() {
 
     }
