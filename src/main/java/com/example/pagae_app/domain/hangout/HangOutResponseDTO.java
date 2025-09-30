@@ -15,4 +15,10 @@ public record HangOutResponseDTO(
 
         @Schema(description = "ID of the user who created the HangOut", example = "101")
         Long creatorId
-) {}
+) {
+        public HangOutResponseDTO(HangOut hangOut){
+                this(
+                        hangOut.getId(), hangOut.getTitle(), hangOut.getDescription(), hangOut.getCreator().getId()
+                );
+        }
+}
