@@ -21,6 +21,15 @@ public class HangOut {
     @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
     private User creator;
 
+    public HangOut(HangOutRequestDTO data, User creator) {
+        this.title = data.title();
+        this.description = data.description();
+        this.creator = creator;
+    }
+
+    public HangOut() {
+    }
+
     public Long getId() {
         return id;
     }
