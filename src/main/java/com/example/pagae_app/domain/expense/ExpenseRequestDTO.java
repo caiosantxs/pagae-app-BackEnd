@@ -18,5 +18,6 @@ public record ExpenseRequestDTO(
         @NotNull
         BigDecimal totalAmount,
 
-        Optional<List<PaymentRequestDTO>> payments
+        @Schema(description = "payments")
+        List<PaymentRequestDTO> payments
 ) {}

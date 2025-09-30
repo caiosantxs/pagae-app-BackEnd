@@ -32,6 +32,12 @@ public class ExpenseShare {
         this.isPaid = false;
     }
 
+    public ExpenseShare(Expense expense, User member, BigDecimal amountOwed) {
+        this.expense = expense;
+        this.user = member;
+        this.amountOwed = amountOwed;
+    }
+
     public Long getId() {
         return id;
     }

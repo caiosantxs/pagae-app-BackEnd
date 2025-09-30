@@ -25,6 +25,13 @@ public class Payment {
     @Column(nullable = false)
     private BigDecimal amount;
 
+    public Payment() {}
+    public Payment(PaymentRequestDTO data, Expense expense, User payer) {
+        this.expense = expense;
+        this.amount = data.amount();
+        this.user = payer;
+    }
+
     public Long getId() {
         return id;
     }
