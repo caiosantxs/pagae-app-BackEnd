@@ -29,6 +29,17 @@ public class Expense {
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
 
+    public Expense() {
+
+    }
+
+    public Expense(ExpenseRequestDTO data, HangOut hangOut, Long userId) {
+        this.hangOut = hangOut;
+        this.description = data.description();
+        this.totalAmount = data.totalAmount();
+        this.id = userId;
+    }
+
     public Long getId() {
         return id;
     }

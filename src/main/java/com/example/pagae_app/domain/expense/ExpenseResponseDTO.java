@@ -1,6 +1,7 @@
 package com.example.pagae_app.domain.expense;
 
 import com.example.pagae_app.domain.payment.PaymentResponseDTO;
+import com.example.pagae_app.domain.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -19,4 +20,16 @@ public record ExpenseResponseDTO(
 
         @Schema(description = "List of payments that make up the total amount")
         List<PaymentResponseDTO> payments
-) {}
+) {
+        public ExpenseResponseDTO(Expense expense){
+                this(
+                        expense.getId(), expense.getDescription(), expense.getTotalAmount(), expense.getPayments().stream()
+                                .map(payment -> new PaymentResponseDTO(
+                                        payment.getId(),
+                                        payment.getAmount(),
+                                        new UserResponseDTO(payment.getUser())
+                                ))
+                                .toList()
+                );
+        }
+}
