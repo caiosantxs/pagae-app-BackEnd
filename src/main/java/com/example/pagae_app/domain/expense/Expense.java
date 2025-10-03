@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "expenses")
@@ -27,17 +28,21 @@ public class Expense {
     private HangOut hangOut;
 
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> payments;
+    private List<Payment> payments = new ArrayList<>();
 
     public Expense() {
 
     }
 
-    public Expense(ExpenseRequestDTO data, HangOut hangOut, Long userId) {
+    public Expense(ExpenseRequestDTO data, HangOut hangOut) {
         this.hangOut = hangOut;
         this.description = data.description();
         this.totalAmount = data.totalAmount();
-        this.id = userId;
+    }
+
+    public void addPayment(Payment payment) {
+        this.payments.add(payment);
+        payment.setExpense(this);
     }
 
     public Long getId() {
