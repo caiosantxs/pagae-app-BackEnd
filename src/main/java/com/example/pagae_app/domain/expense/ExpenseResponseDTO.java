@@ -1,5 +1,6 @@
 package com.example.pagae_app.domain.expense;
 
+import com.example.pagae_app.domain.payment.Payment;
 import com.example.pagae_app.domain.payment.PaymentResponseDTO;
 import com.example.pagae_app.domain.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Schema(description = "DTO for returning detailed expense data")
 public record ExpenseResponseDTO(
+
         @Schema(description = "Expense's unique identifier", example = "210")
         Long id,
 
@@ -19,7 +21,9 @@ public record ExpenseResponseDTO(
         BigDecimal totalAmount,
 
         @Schema(description = "List of payments that make up the total amount")
-        List<PaymentResponseDTO> payments
+        List<PaymentResponseDTO> payments,
+
+        boolean isPaid
 ) {
         public ExpenseResponseDTO(Expense expense){
                 this(
@@ -29,7 +33,22 @@ public record ExpenseResponseDTO(
                                         payment.getAmount(),
                                         new UserResponseDTO(payment.getUser())
                                 ))
-                                .toList()
+                                .toList(),
+
+                        calculateIsPaid(expense)
+
                 );
+        }
+
+        private static boolean calculateIsPaid(Expense expense) {
+                if (expense.getPayments() == null || expense.getPayments().isEmpty()) {
+                        return false;
+                }
+
+                BigDecimal totalPaid = expense.getPayments().stream()
+                        .map(Payment::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                return totalPaid.compareTo(expense.getTotalAmount()) == 0;
         }
 }
