@@ -10,6 +10,8 @@ import com.example.pagae_app.repositories.HangOutRepository;
 import com.example.pagae_app.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,11 +91,9 @@ public class HangOutService {
     }
 
     @Transactional(readOnly = true)
-    public List<HangOutResponseDTO> findHangOutsByUserId(Long userId) {
-        List<HangOut> hangOuts = hangOutRepository.findHangOutsByUserId(userId);
+    public Page<HangOutResponseDTO> findHangOutsByUserId(Long userId, Pageable pageable) {
+        Page<HangOut> hangOuts = hangOutRepository.findHangOutsByUserId(userId, pageable);
 
-        return hangOuts.stream()
-                .map(HangOutResponseDTO::new)
-                .collect(Collectors.toList());
+        return hangOuts.map(HangOutResponseDTO::new);
     }
 }

@@ -7,12 +7,12 @@ import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.services.HangOutService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/hangouts")
@@ -30,9 +30,9 @@ public class HangOutController {
     }
 
     @GetMapping
-    public ResponseEntity<List<HangOutResponseDTO>> findMyHangOuts(Authentication authentication) {
+    public ResponseEntity<Page<HangOutResponseDTO>> findMyHangOuts(Authentication authentication, Pageable pageable) {
         User authenticatedUser = (User) authentication.getPrincipal();
-        List<HangOutResponseDTO> hangOuts = hangOutService.findHangOutsByUserId(authenticatedUser.getId());
+        Page<HangOutResponseDTO> hangOuts = hangOutService.findHangOutsByUserId(authenticatedUser.getId(), pageable);
         return ResponseEntity.ok(hangOuts);
     }
 
