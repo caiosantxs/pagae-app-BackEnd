@@ -8,10 +8,14 @@ import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.payment.Payment;
 import com.example.pagae_app.domain.payment.PaymentRequestDTO;
+import com.example.pagae_app.domain.payment.PaymentResponseDTO;
 import com.example.pagae_app.domain.user.User;
+import com.example.pagae_app.domain.user.UserResponseDTO;
 import com.example.pagae_app.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,48 +48,104 @@ public class ExpenseService {
                 .orElseThrow(() -> new EntityNotFoundException("HangOut not found"));
 
         if (!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUserId)) {
-            throw new SecurityException("User is not in HangOut");
+            throw new SecurityException("Acesso negado: O usuário que está criando a despesa não é membro do HangOut.");
         }
 
-        Expense expense = new Expense(data, hangOut, currentUserId);
-
-        BigDecimal totalPaid = BigDecimal.ZERO;
-
-        List<PaymentRequestDTO> payments = data.payments();
-
-        if (!payments.isEmpty()) {
-            for (PaymentRequestDTO paymentDto : payments) {
-                User payer = userRepository.findById(currentUserId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-
-                if (!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUserId)) {
-                    throw new SecurityException("User is not in HangOut");
-                }
-
-                Payment payment = new Payment(paymentDto, expense, payer);
-                expense.getPayments().add(payment);
-                totalPaid = totalPaid.add(payment.getAmount());
-            }
-        }
-
-        if (totalPaid.compareTo(expense.getTotalAmount()) != 0) {
-            throw new IllegalStateException("The sum of the payments (" + totalPaid + ") don't match with the total value of the hangOut (" + expense.getTotalAmount() + ").");
-        }
+        Expense expense = new Expense();
+        expense.setDescription(data.description());
+        expense.setTotalAmount(data.totalAmount());
+        expense.setHangOut(hangOut);
 
         Expense savedExpense = expenseRepository.save(expense);
 
         List<HangOutMember> members = hangOutMemberRepository.findByHangOut_Id(hangOutId);
         if (members.isEmpty()) {
-            throw new IllegalStateException("HangOut doesn't have members to divide the hangOut");
+            throw new IllegalStateException("HangOut não tem membros para dividir a despesa.");
         }
 
         BigDecimal amountPerMember = savedExpense.getTotalAmount()
                 .divide(new BigDecimal(members.size()), 2, RoundingMode.HALF_UP);
 
         for (HangOutMember hangOutMember : members) {
-            ExpenseShare share = new ExpenseShare(expense, hangOutMember.getUser(), amountPerMember);
+            ExpenseShare share = new ExpenseShare(savedExpense, hangOutMember.getUser(), amountPerMember);
             expenseShareRepository.save(share);
         }
 
-        return new ExpenseResponseDTO(expense);
+        return new ExpenseResponseDTO(savedExpense);
     }
+
+    @Transactional
+    public PaymentResponseDTO addPayment(PaymentRequestDTO data, Long expenseId, Long currentUserId) {
+
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
+
+        User payer = userRepository.findById(data.userId())
+                .orElseThrow(() -> new EntityNotFoundException("User payer not found"));
+
+        Long hangOutId = expense.getHangOut().getId();
+
+        if(!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUserId)){
+            throw new SecurityException("Você não está nesse role, então nao tem autorização");
+        }
+        if(!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, payer.getId())){
+            throw new SecurityException("O usuário pagador não é membro do HangOut desta despesa.");
+        }
+
+        Payment payment = new Payment();
+        payment.setUser(payer);
+        payment.setAmount(data.amount());
+
+        expense.addPayment(payment);
+
+        expenseRepository.save(expense);
+
+        return new PaymentResponseDTO(payment.getId(), payment.getAmount(), new UserResponseDTO(payer));
+
+    }
+
+    @Transactional
+    public void deleteExpense(Long expenseId, Long currentUserId) {
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
+
+        if(!expense.getHangOut().getCreator().getId().equals(currentUserId)){
+            throw new SecurityException("Access denied: Only the creator of the hangOut can delete");
+        }
+
+        expenseRepository.delete(expense);
+    }
+
+    @Transactional
+    public void updateExpense(Long expenseId, ExpenseRequestDTO data, Long currentUserId){
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
+
+        if(!expense.getHangOut().getCreator().getId().equals(currentUserId)){
+            throw new SecurityException("Access denied: Only the creator of the hangOut can delete");
+        }
+
+        expense.setDescription(data.description());
+        expense.setTotalAmount(data.totalAmount());
+        expense.setHangOut(expense.getHangOut());
+
+        expenseRepository.save(expense);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ExpenseResponseDTO> getExpenses(Long hangOutId, Long currentUserId, Pageable pageable) {
+        HangOut hangOut = hangOutRepository.findById(hangOutId)
+                .orElseThrow(() -> new EntityNotFoundException("HangOut not found"));
+
+        if (!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOut.getId(), currentUserId)) {
+            throw new SecurityException("Acesso negado: Você não é membro deste HangOut.");
+        }
+
+        Page<Expense> expensePage = expenseRepository.findByHangOutId(hangOutId, pageable);
+
+        return expensePage.map(ExpenseResponseDTO::new);
+    }
+
+
+
 }
