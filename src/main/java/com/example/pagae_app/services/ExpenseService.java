@@ -3,6 +3,7 @@ package com.example.pagae_app.services;
 import com.example.pagae_app.domain.expense.Expense;
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
+import com.example.pagae_app.domain.expense_participants.ExpenseParticipant;
 import com.example.pagae_app.domain.expense_shares.ExpenseShare;
 import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,6 +43,9 @@ public class ExpenseService {
     @Autowired
     private ExpenseShareRepository expenseShareRepository;
 
+    @Autowired
+    private ExpenseParticipantRepository expenseParticipantRepository;
+
     @Transactional
     public ExpenseResponseDTO createExpense(ExpenseRequestDTO data, Long hangOutId, Long currentUserId) {
 
@@ -55,24 +60,51 @@ public class ExpenseService {
         expense.setDescription(data.description());
         expense.setTotalAmount(data.totalAmount());
         expense.setHangOut(hangOut);
-
         Expense savedExpense = expenseRepository.save(expense);
 
-        List<HangOutMember> members = hangOutMemberRepository.findByHangOut_Id(hangOutId);
-        if (members.isEmpty()) {
-            throw new IllegalStateException("HangOut não tem membros para dividir a despesa.");
+        List<Long> participantIds = data.participantsIds();
+
+        if(!participantIds.isEmpty()){
+
+                List<User> participants = new ArrayList<>();
+
+                for (Long participantId : participantIds) {
+                    User participant = userRepository.findById(participantId)
+                            .orElseThrow(() -> new EntityNotFoundException("Participante com ID " + participantId + " não encontrado."));
+
+                    if (!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, participant.getId())) {
+                        throw new IllegalStateException("Usuário " + participant.getName() + " não pode participar da despesa pois não é membro do HangOut.");
+                    }
+                    participants.add(participant);
+                }
+
+                for (User participant : participants) {
+                    ExpenseParticipant expenseParticipant = new ExpenseParticipant(savedExpense, participant);
+                    expenseParticipantRepository.save(expenseParticipant);
+                }
+
+                BigDecimal amountPerMember = savedExpense.getTotalAmount()
+                        .divide(new BigDecimal(participants.size()), 2, RoundingMode.HALF_UP);
+
+                for (User participant : participants) {
+                    ExpenseShare share = new ExpenseShare(savedExpense, participant, amountPerMember);
+                    expenseShareRepository.save(share);
+                }
+        }else {
+            List<HangOutMember> allMembers = hangOutMemberRepository.findByHangOut_Id(hangOutId);
+
+            BigDecimal amountPerMember = savedExpense.getTotalAmount()
+                    .divide(new BigDecimal(allMembers.size()), 2, RoundingMode.HALF_UP);
+
+            for (HangOutMember member : allMembers) {
+                ExpenseShare share = new ExpenseShare(savedExpense, member.getUser(), amountPerMember);
+                expenseShareRepository.save(share);
+            }
         }
-
-        BigDecimal amountPerMember = savedExpense.getTotalAmount()
-                .divide(new BigDecimal(members.size()), 2, RoundingMode.HALF_UP);
-
-        for (HangOutMember hangOutMember : members) {
-            ExpenseShare share = new ExpenseShare(savedExpense, hangOutMember.getUser(), amountPerMember);
-            expenseShareRepository.save(share);
-        }
-
+        
         return new ExpenseResponseDTO(savedExpense);
     }
+
 
     @Transactional
     public PaymentResponseDTO addPayment(PaymentRequestDTO data, Long expenseId, Long currentUserId) {
