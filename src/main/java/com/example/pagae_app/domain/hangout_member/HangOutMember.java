@@ -32,7 +32,6 @@ public class HangOutMember {
         this.id = new HangOutMemberPK(user.getId(), hangOut.getId());
     }
 
-
     public HangOutMemberPK getId() {
         return id;
     }
