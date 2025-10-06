@@ -3,14 +3,18 @@ package com.example.pagae_app.services;
 import com.example.pagae_app.domain.user.RegisterDTO;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
+import com.example.pagae_app.domain.user.UserUpdatePasswordDTO;
 import com.example.pagae_app.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -27,4 +31,35 @@ public class UserService {
 
         return new UserResponseDTO(user);
     }
+
+    public User findById(long id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    @Transactional
+    public UserResponseDTO delete(Long id, Long currentUserId) {
+
+        User user = this.userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        this.userRepository.delete(user);
+
+        return new UserResponseDTO(user);
+    }
+
+    @Transactional
+    public UserResponseDTO updatePassword(UserUpdatePasswordDTO data){
+        User user = this.userRepository.findById(data.userId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encryptedPassword = passwordEncoder.encode(data.newPassword());
+        user.setPassword(encryptedPassword);
+
+        this.userRepository.save(user);
+
+        return new UserResponseDTO(user);
+    }
+
+
 }
