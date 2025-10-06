@@ -15,18 +15,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class HangOutService {
 
     @Autowired
     private HangOutRepository hangOutRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private HangOutMemberRepository hangOutMemberRepository;
+    @Autowired
+    private ExpenseService expenseService;
 
     @Transactional
     public HangOutResponseDTO create(HangOutRequestDTO data, Long creatorId) {
@@ -87,6 +88,7 @@ public class HangOutService {
         }
 
         HangOutMember hangOutMember = new HangOutMember(hangOut, user);
+
         hangOutMemberRepository.save(hangOutMember);
     }
 
