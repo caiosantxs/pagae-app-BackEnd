@@ -21,4 +21,14 @@ public record ExpenseShareDTO(
 
         @Schema(description = "Indicates if this share has been settled", example = "false")
         boolean isPaid
-) {}
+) {
+        public ExpenseShareDTO(ExpenseShare expenseShare){
+                this(
+                        expenseShare.getId(),
+                        expenseShare.getId(),
+                        new UserResponseDTO(expenseShare.getUser()),
+                        expenseShare.getAmountOwed(),
+                        expenseShare.isPaid()
+                );
+        }
+}
