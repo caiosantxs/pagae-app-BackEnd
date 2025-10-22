@@ -58,7 +58,11 @@ public class HangOutController {
                     description = "Internal Server Error.",
                     content = @Content
             ),
-            @ApiResponse(responseCode = "403", description = "User is not authenticated", content = @Content)
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User is not authenticated",
+                    content = @Content
+            )
     })
     @PostMapping
     public ResponseEntity<HangOutResponseDTO> create(
@@ -156,7 +160,7 @@ public class HangOutController {
                     required = true,
                     example = "58"
             )
-            @PathVariable Long id,
+            @PathVariable Long hangOutId,
             @Parameter(
                     description = "Updated data for the hangout",
                     required = true,
@@ -167,7 +171,7 @@ public class HangOutController {
     ) {
 
         User authenticatedUser = (User) authentication.getPrincipal();
-        hangOutService.update(data, id, authenticatedUser.getId());
+        hangOutService.update(data, hangOutId, authenticatedUser.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -194,11 +198,6 @@ public class HangOutController {
                     responseCode = "500",
                     description = "Internal Server Error.",
                     content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "User is not authenticated",
-                    content = @Content
             )
     })
     @DeleteMapping("/{hangOutId}")
@@ -208,12 +207,12 @@ public class HangOutController {
                     required = true,
                     example = "58"
             )
-            @PathVariable Long id,
+            @PathVariable Long hangOutId,
             Authentication authentication
     ) {
 
         User authenticatedUser = (User) authentication.getPrincipal();
-        hangOutService.delete(id, authenticatedUser.getId());
+        hangOutService.delete(hangOutId, authenticatedUser.getId());
         return ResponseEntity.noContent().build();
     }
 
