@@ -67,7 +67,8 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(
             @Parameter(description = "User's login credentials", required = true, schema = @Schema(implementation = AuthenticationDTO.class))
-            @RequestBody @Valid AuthenticationDTO data) {
+            @RequestBody @Valid AuthenticationDTO data
+    ) {
         var userNamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(userNamePassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
@@ -98,7 +99,8 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity register(
             @Parameter(description = "Data for the new user account", required = true, schema = @Schema(implementation = RegisterDTO.class))
-            @RequestBody @Valid RegisterDTO data) {
+            @RequestBody @Valid RegisterDTO data
+    ) {
         if(this.userRepository.findByLogin(data.login()) != null) {
             return ResponseEntity.badRequest().body("Error: Login is already taken!");
         }
