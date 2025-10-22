@@ -17,6 +17,7 @@ public class ExpenseShareService {
 
     @Autowired
     private HangOutMemberRepository hangOutMemberRepository;
+
     @Autowired
     private ExpenseShareRepository expenseShareRepository;
 
