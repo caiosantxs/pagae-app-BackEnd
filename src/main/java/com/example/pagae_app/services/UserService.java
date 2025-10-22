@@ -1,9 +1,6 @@
 package com.example.pagae_app.services;
 
-import com.example.pagae_app.domain.user.RegisterDTO;
-import com.example.pagae_app.domain.user.User;
-import com.example.pagae_app.domain.user.UserResponseDTO;
-import com.example.pagae_app.domain.user.UserUpdatePasswordDTO;
+import com.example.pagae_app.domain.user.*;
 import com.example.pagae_app.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +29,28 @@ public class UserService {
         return new UserResponseDTO(user);
     }
 
-    public User findById(long id) {
+    public User findById(Long id) {
         return this.userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     @Transactional
-    public UserResponseDTO delete(Long id, Long currentUserId) {
+    public void delete(Long id, Long currentUserId) throws SecurityException{
+
+        User currentUser = this.findById(currentUserId);
+        System.out.println(currentUser.getRole());
+
+        if (!currentUser.getRole().equals(UserRole.ADMIN)) {
+            throw new SecurityException("You do not have permission to delete this user");
+        }
 
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         this.userRepository.delete(user);
-
-        return new UserResponseDTO(user);
     }
 
     @Transactional
-    public UserResponseDTO updatePassword(UserUpdatePasswordDTO data){
+    public void updatePassword(UserUpdatePasswordDTO data){
         User user = this.userRepository.findById(data.userId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -57,8 +59,6 @@ public class UserService {
         user.setPassword(encryptedPassword);
 
         this.userRepository.save(user);
-
-        return new UserResponseDTO(user);
     }
 
 
