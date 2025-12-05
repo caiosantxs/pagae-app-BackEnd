@@ -36,7 +36,12 @@ public class User implements UserDetails {
         this.name = data.name();
         this.email = data.email();
         this.password = encryptedPassword;
-        this.role = data.role();
+        if(data.role() == null){
+            this.role = UserRole.USER;
+        }else {
+            this.role = data.role();
+        }
+
     }
 
     public User() {

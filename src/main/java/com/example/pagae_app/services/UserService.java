@@ -4,13 +4,12 @@ import com.example.pagae_app.domain.user.*;
 import com.example.pagae_app.infra.exceptions.InvalidTokenException;
 import com.example.pagae_app.repositories.TokenRepository;
 import com.example.pagae_app.repositories.UserRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +39,12 @@ public class UserService {
     public UserResponseDTO create(RegisterDTO data) {
         String encryptedPassword = passwordEncoder.encode(data.password());
 
+        if (this.userRepository.findByLogin(data.login()) != null) {
+            throw new EntityExistsException("Login already exists, try another login");
+        }
+
         User user = new User(data, encryptedPassword);
+
 
         this.userRepository.save(user);
 

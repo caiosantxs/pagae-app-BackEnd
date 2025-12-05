@@ -62,7 +62,11 @@ public class ExpenseService {
         expense.setHangOut(hangOut);
         Expense savedExpense = expenseRepository.save(expense);
 
-        List<Long> participantIds = data.participantsIds();
+        List<Long> participantIds = new ArrayList<>();
+
+        if(data.participantsIds() != null) {
+            participantIds = data.participantsIds();
+        }
 
         if(!participantIds.isEmpty()){
 

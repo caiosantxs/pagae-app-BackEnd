@@ -10,4 +10,6 @@ public interface HangOutMemberRepository extends JpaRepository<HangOutMember, Lo
     boolean existsByHangOutIdAndUserId(Long hangOutId, Long currentUserId);
 
     List<HangOutMember> findByHangOut_Id(Long hangOutId);
+
+    Long countByUser_Id(Long userId);
 }
