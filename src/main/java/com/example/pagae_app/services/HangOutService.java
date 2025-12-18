@@ -5,6 +5,7 @@ import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
 import com.example.pagae_app.domain.hangout.HangOutResponseDTO;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.user.User;
+import com.example.pagae_app.domain.user.UserResponseDTO;
 import com.example.pagae_app.repositories.HangOutMemberRepository;
 import com.example.pagae_app.repositories.HangOutRepository;
 import com.example.pagae_app.repositories.UserRepository;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class HangOutService {
@@ -26,6 +29,7 @@ public class HangOutService {
 
     @Autowired
     private HangOutMemberRepository hangOutMemberRepository;
+
     @Autowired
     private ExpenseService expenseService;
 
@@ -94,8 +98,17 @@ public class HangOutService {
 
     @Transactional(readOnly = true)
     public Page<HangOutResponseDTO> findHangOutsByUserId(Long userId, Pageable pageable) {
-        Page<HangOut> hangOuts = hangOutRepository.findHangOutsByUserId(userId, pageable);
+        Page<HangOut> hangOuts = hangOutRepository.findByUserInvolvement(userId, pageable);
 
         return hangOuts.map(HangOutResponseDTO::new);
+    }
+
+
+    public List<UserResponseDTO> getHangoutParticipants(Long hangOutId) {
+        List<User> participants = hangOutMemberRepository.findUsersByHangOutId(hangOutId);
+
+        return participants.stream()
+                .map(UserResponseDTO::new)
+                .toList();
     }
 }

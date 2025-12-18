@@ -6,6 +6,7 @@ import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
 import com.example.pagae_app.domain.hangout.HangOutResponseDTO;
 import com.example.pagae_app.domain.hangout_member.AddMemberRequestDTO;
 import com.example.pagae_app.domain.user.User;
+import com.example.pagae_app.domain.user.UserResponseDTO;
 import com.example.pagae_app.services.ExpenseService;
 import com.example.pagae_app.services.HangOutService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/hangouts")
@@ -256,7 +259,7 @@ public class HangOutController {
                     content = @Content
             )
     })
-    @PostMapping("/{hangOutId}/members")
+    @PostMapping("/{hangOutId}/new-member")
     public ResponseEntity<Void> addMember(
             @Parameter(
                     description = "ID of the hangout to add a member to",
@@ -384,6 +387,12 @@ public class HangOutController {
         User authenticatedUser = (User) authentication.getPrincipal();
         Page<ExpenseResponseDTO> expenses = expenseService.getExpenses(hangOutId, authenticatedUser.getId(), pageable);
         return ResponseEntity.ok(expenses);
+    }
+
+    @GetMapping("{hangOutId}/members")
+    public ResponseEntity<List<UserResponseDTO>> getHangOutMembers (@PathVariable Long hangOutId) {
+        List<UserResponseDTO> members = hangOutService.getHangoutParticipants(hangOutId);
+       return ResponseEntity.ok(members);
     }
 
 }

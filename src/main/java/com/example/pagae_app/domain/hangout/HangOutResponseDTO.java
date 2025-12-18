@@ -1,8 +1,10 @@
 package com.example.pagae_app.domain.hangout;
 
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
+import com.example.pagae_app.domain.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,8 +22,14 @@ public record HangOutResponseDTO(
         @Schema(description = "ID of the user who created the HangOut", example = "101")
         Long creatorId,
 
+        LocalDate creationDate,
+
+        StatusHangOut statusHangOut,
+
         @Schema(description = "Expenses from hangout")
-        List<ExpenseResponseDTO> expenses
+        List<ExpenseResponseDTO> expenses,
+
+        List<String> members
 ) {
     public HangOutResponseDTO(HangOut hangOut) {
         this(
@@ -29,8 +37,14 @@ public record HangOutResponseDTO(
                 hangOut.getTitle(),
                 hangOut.getDescription(),
                 hangOut.getCreator().getId(),
+                hangOut.getCreationDate(),
+                hangOut.getStatus(),
                 hangOut.getExpenses().stream()
-                        .map(ExpenseResponseDTO::new).collect(Collectors.toList())
+                        .map(ExpenseResponseDTO::new).collect(Collectors.toList()),
+                hangOut.getMembers().stream()
+                        .map(member -> member.getUser().getName())
+                        .limit(5)
+                        .toList()
         );
     }
 }
