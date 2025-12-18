@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface HangOutRepository extends JpaRepository<HangOut, Long> {
-    @Query("SELECT hm.hangOut FROM hangout_members hm WHERE hm.user.id = :userId")
-    Page<HangOut> findHangOutsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""
         SELECT DISTINCT h 
@@ -21,4 +19,6 @@ public interface HangOutRepository extends JpaRepository<HangOut, Long> {
            OR m.user.id = :userId
     """)
     Page<HangOut> findByUserInvolvement(@Param("userId") Long userId, Pageable pageable);
+
+    HangOut findHangOutsById(Long id);
 }

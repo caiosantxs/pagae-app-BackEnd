@@ -105,7 +105,7 @@ public class ExpenseShareController {
                     description = "Internal Server Error.",
                     content = @Content)
     })
-    @GetMapping("/hangouts/{hangOutId}")
+    @GetMapping("/hangouts/{hangOutId}/expense-shares")
     @PageableAsQueryParam
     public ResponseEntity<Page<ExpenseShareDTO>> getAllSharesByHangOut(
             @Parameter(description = "ID of the hangout to retrieve debts from", required = true, example = "58")

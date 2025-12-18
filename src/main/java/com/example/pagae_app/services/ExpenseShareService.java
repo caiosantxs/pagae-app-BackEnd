@@ -12,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ExpenseShareService {
 
@@ -56,6 +59,9 @@ public class ExpenseShareService {
         expenseShareRepository.save(expenseShare);
     }
 
-
+    public List<ExpenseShareDTO> getExpenseShareByUserAndHangOut(Long hangOutId, Long userId) {
+        List<ExpenseShare> shares = expenseShareRepository.findByUser_IdAndExpense_HangOut_Id(userId, hangOutId);
+        return shares.stream().map(ExpenseShareDTO::new).collect(Collectors.toList());
+    }
 
 }

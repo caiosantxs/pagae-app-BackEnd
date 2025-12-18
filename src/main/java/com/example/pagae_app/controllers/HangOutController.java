@@ -2,12 +2,14 @@ package com.example.pagae_app.controllers;
 
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
+import com.example.pagae_app.domain.expense_shares.ExpenseShareDTO;
 import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
 import com.example.pagae_app.domain.hangout.HangOutResponseDTO;
 import com.example.pagae_app.domain.hangout_member.AddMemberRequestDTO;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
 import com.example.pagae_app.services.ExpenseService;
+import com.example.pagae_app.services.ExpenseShareService;
 import com.example.pagae_app.services.HangOutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,6 +40,8 @@ public class HangOutController {
 
     @Autowired
     private ExpenseService expenseService;
+    @Autowired
+    private ExpenseShareService expenseShareService;
 
 
     @Operation(
@@ -393,6 +397,18 @@ public class HangOutController {
     public ResponseEntity<List<UserResponseDTO>> getHangOutMembers (@PathVariable Long hangOutId) {
         List<UserResponseDTO> members = hangOutService.getHangoutParticipants(hangOutId);
        return ResponseEntity.ok(members);
+    }
+
+    @GetMapping("{hangOutId}")
+    public ResponseEntity<HangOutResponseDTO> getHangOutById (@PathVariable Long hangOutId) {
+        return ResponseEntity.ok(hangOutService.getHangOutById(hangOutId));
+    }
+
+    @GetMapping("{hangOutId}/expense-shares")
+    public ResponseEntity<List<ExpenseShareDTO>> getSharesByUserIdAndHangOutId (Authentication authentication, @PathVariable Long hangOutId) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        List<ExpenseShareDTO> shares = expenseShareService.getExpenseShareByUserAndHangOut(hangOutId, authenticatedUser.getId());
+        return ResponseEntity.ok(shares);
     }
 
 }

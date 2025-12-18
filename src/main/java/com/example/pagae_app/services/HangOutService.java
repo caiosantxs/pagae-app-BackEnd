@@ -111,4 +111,9 @@ public class HangOutService {
                 .map(UserResponseDTO::new)
                 .toList();
     }
+
+    public HangOutResponseDTO getHangOutById(Long hangOutId) {
+        HangOut hangOut = hangOutRepository.findHangOutsById(hangOutId);
+        return new HangOutResponseDTO(hangOut);
+    }
 }

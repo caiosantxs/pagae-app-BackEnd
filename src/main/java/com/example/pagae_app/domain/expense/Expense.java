@@ -2,6 +2,7 @@ package com.example.pagae_app.domain.expense;
 
 import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.payment.Payment;
+import com.example.pagae_app.domain.user.User;
 import jakarta.persistence.*;
 
 
@@ -30,6 +31,11 @@ public class Expense {
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments = new ArrayList<>();
 
+    // Remova o mappedBy e mude para ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_creator_id", referencedColumnName = "id", nullable = false)
+    private User creator;
+
     public Expense() {
 
     }
@@ -38,6 +44,7 @@ public class Expense {
         this.hangOut = hangOut;
         this.description = data.description();
         this.totalAmount = data.totalAmount();
+        this.creator = creator;
     }
 
     public void addPayment(Payment payment) {
@@ -74,5 +81,11 @@ public class Expense {
     }
     public void setPayments(List<Payment> payments) {
         this.payments = payments;
+    }
+    public User getCreator() {
+        return creator;
+    }
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 }

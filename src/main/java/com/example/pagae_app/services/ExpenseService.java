@@ -52,6 +52,8 @@ public class ExpenseService {
         HangOut hangOut = hangOutRepository.findById(hangOutId)
                 .orElseThrow(() -> new EntityNotFoundException("HangOut not found"));
 
+        User creator = userRepository.findById(currentUserId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         if (!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUserId)) {
             throw new SecurityException("Acesso negado: O usuário que está criando a despesa não é membro do HangOut.");
         }
@@ -60,6 +62,7 @@ public class ExpenseService {
         expense.setDescription(data.description());
         expense.setTotalAmount(data.totalAmount());
         expense.setHangOut(hangOut);
+        expense.setCreator(creator);
         Expense savedExpense = expenseRepository.save(expense);
 
         List<Long> participantIds = new ArrayList<>();
@@ -127,6 +130,9 @@ public class ExpenseService {
         if(!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, payer.getId())){
             throw new SecurityException("O usuário pagador não é membro do HangOut desta despesa.");
         }
+
+        ExpenseShare share = expenseShareRepository.findByExpense_IdAndUser_Id(expenseId, currentUserId);
+        share.setAmountOwed(share.getAmountOwed().subtract(data.amount()));
 
         Payment payment = new Payment();
         payment.setUser(payer);

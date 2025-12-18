@@ -1,7 +1,6 @@
 package com.example.pagae_app.domain.hangout;
 
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
-import com.example.pagae_app.domain.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
