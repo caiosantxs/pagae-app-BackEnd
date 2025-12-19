@@ -28,7 +28,7 @@ public record HangOutResponseDTO(
         @Schema(description = "Expenses from hangout")
         List<ExpenseResponseDTO> expenses,
 
-        List<String> members
+        List<MemberDTO> members
 ) {
     public HangOutResponseDTO(HangOut hangOut) {
         this(
@@ -40,10 +40,10 @@ public record HangOutResponseDTO(
                 hangOut.getStatus(),
                 hangOut.getExpenses().stream()
                         .map(ExpenseResponseDTO::new).collect(Collectors.toList()),
-                hangOut.getMembers().stream()
-                        .map(member -> member.getUser().getName())
-                        .limit(5)
-                        .toList()
+                hangOut.getMembers().stream().map(member -> new MemberDTO(
+                        member.getUser().getId(),
+                        member.getUser().getName()
+                )).toList()
         );
     }
 }

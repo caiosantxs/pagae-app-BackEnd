@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -150,5 +153,11 @@ public class UserService {
         }
     }
 
+
+    public List<UserResponseDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        
+        return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
+    }
 
 }

@@ -3,6 +3,7 @@ package com.example.pagae_app.services;
 import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
 import com.example.pagae_app.domain.hangout.HangOutResponseDTO;
+import com.example.pagae_app.domain.hangout.StatusHangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
@@ -43,6 +44,18 @@ public class HangOutService {
 
         HangOutMember firstMember = new HangOutMember(saved, creator);
         hangOutMemberRepository.save(firstMember);
+
+        if (data.memberIds() != null && !data.memberIds().isEmpty()) {
+            List<User> members = userRepository.findAllById(data.memberIds());
+
+            for (User user : members) {
+
+                if (!user.getId().equals(creator.getId())) {
+                    HangOutMember member = new HangOutMember(saved, user);
+                    hangOutMemberRepository.save(member);
+                }
+            }
+        }
 
         return new HangOutResponseDTO(saved);
     }
@@ -115,5 +128,14 @@ public class HangOutService {
     public HangOutResponseDTO getHangOutById(Long hangOutId) {
         HangOut hangOut = hangOutRepository.findHangOutsById(hangOutId);
         return new HangOutResponseDTO(hangOut);
+    }
+
+    @Transactional
+    public void finalize(Long id) {
+        HangOut hangout = hangOutRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Hangout não encontrado"));
+
+        hangout.setStatus(StatusHangOut.FINALIZADO);
+        hangOutRepository.save(hangout);
     }
 }

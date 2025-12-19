@@ -20,7 +20,7 @@ public class HangOut {
     @Column(name = "name", nullable = false)
     private String title;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = true)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,14 +30,14 @@ public class HangOut {
     @Column(name = "creation_date", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate creationDate;
 
-    @Enumerated(EnumType.STRING) // 1. Garante que o Java trate como Texto
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, columnDefinition = "varchar(255) DEFAULT 'ATIVO'") // 2. Força o SQL exato
     private StatusHangOut status = StatusHangOut.ATIVO;
 
     @OneToMany(mappedBy = "hangOut", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "hangOut", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hangOut", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HangOutMember> members = new ArrayList<>();
 
     public HangOut(HangOutRequestDTO data, User creator) {

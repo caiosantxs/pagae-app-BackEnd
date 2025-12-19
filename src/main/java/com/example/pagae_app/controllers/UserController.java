@@ -12,10 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -59,6 +58,12 @@ public class UserController {
         User authenticatedUser = (User) auth.getPrincipal();
         this.userService.delete(userId, authenticatedUser.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        this.userService.getAllUsers();
+        return ResponseEntity.ok(this.userService.getAllUsers());
     }
 
 

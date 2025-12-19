@@ -411,4 +411,12 @@ public class HangOutController {
         return ResponseEntity.ok(shares);
     }
 
+    @PatchMapping("/{id}/finalize")
+    public ResponseEntity<Void> finalizeHangout(@PathVariable Long id) {
+        hangOutService.finalize(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 }
