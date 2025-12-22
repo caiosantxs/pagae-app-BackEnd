@@ -25,7 +25,7 @@ public record ExpenseShareDTO(
         public ExpenseShareDTO(ExpenseShare expenseShare){
                 this(
                         expenseShare.getId(),
-                        expenseShare.getId(),
+                        expenseShare.getExpense().getId(),
                         new UserResponseDTO(expenseShare.getUser()),
                         expenseShare.getAmountOwed(),
                         expenseShare.isPaid()

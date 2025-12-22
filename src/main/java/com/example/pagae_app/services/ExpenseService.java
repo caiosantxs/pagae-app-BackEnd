@@ -114,36 +114,42 @@ public class ExpenseService {
 
 
     @Transactional
-    public PaymentResponseDTO addPayment(PaymentRequestDTO data, Long expenseId, Long currentUserId) {
+    public PaymentResponseDTO addPayment(PaymentRequestDTO data, Long expenseId, User currentUser) {
 
+        // 1. Busca a Despesa
         Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
 
-        User payer = userRepository.findById(data.userId())
-                .orElseThrow(() -> new EntityNotFoundException("User payer not found"));
-
         Long hangOutId = expense.getHangOut().getId();
 
-        if(!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUserId)){
-            throw new SecurityException("Você não está nesse role, então nao tem autorização");
-        }
-        if(!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, payer.getId())){
-            throw new SecurityException("O usuário pagador não é membro do HangOut desta despesa.");
+        // 2. Segurança: Verifica se o usuário logado pertence ao rolê
+        if(!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUser.getId())){
+            throw new SecurityException("Você não é membro deste rolê e não pode realizar pagamentos.");
         }
 
-        ExpenseShare share = expenseShareRepository.findByExpense_IdAndUser_Id(expenseId, currentUserId);
+        // 3. Busca a Parcela (Dívida) do Usuário Logado
+        // IMPORTANTE: Agora buscamos explicitamente a dívida do 'currentUser'
+        ExpenseShare share = expenseShareRepository.findByExpense_IdAndUser_Id(expenseId, currentUser.getId());
+
+        if (share == null) {
+            // Opcional: Se ele não tiver dívida registrada, você pode impedir ou deixar ele pagar "extra"
+            throw new EntityNotFoundException("Você não possui pendências registradas para esta despesa.");
+        }
+
+        // 4. Abate o valor da dívida
         share.setAmountOwed(share.getAmountOwed().subtract(data.amount()));
+        expenseShareRepository.save(share);
 
+        // 5. Cria o registro do Pagamento
         Payment payment = new Payment();
-        payment.setUser(payer);
+        payment.setUser(currentUser); // <--- O pagador é o usuário logado
         payment.setAmount(data.amount());
 
+        // Vincula na despesa (addPayment deve setar o 'expense' no 'payment' internamente)
         expense.addPayment(payment);
-
         expenseRepository.save(expense);
 
-        return new PaymentResponseDTO(payment.getId(), payment.getAmount(), new UserResponseDTO(payer));
-
+        return new PaymentResponseDTO(payment.getId(), payment.getAmount(), new UserResponseDTO(currentUser));
     }
 
     @Transactional

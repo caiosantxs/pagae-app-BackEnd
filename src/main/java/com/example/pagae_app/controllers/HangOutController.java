@@ -6,6 +6,8 @@ import com.example.pagae_app.domain.expense_shares.ExpenseShareDTO;
 import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
 import com.example.pagae_app.domain.hangout.HangOutResponseDTO;
 import com.example.pagae_app.domain.hangout_member.AddMemberRequestDTO;
+import com.example.pagae_app.domain.payment.PaymentRequestDTO;
+import com.example.pagae_app.domain.payment.PaymentResponseDTO;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
 import com.example.pagae_app.services.ExpenseService;
@@ -417,6 +419,61 @@ public class HangOutController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @Operation(
+            summary = "Add a payment to an expense",
+            description = "Registers a new payment for an existing expense."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Payment added successfully.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid data provided.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden if the user is not a member of the hangout.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Expense or Payer not found.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User is not authenticated",
+                    content = @Content
+            )
+    })
+    @PostMapping("expenses/{expenseId}/payments")
+    public ResponseEntity<PaymentResponseDTO> addPayment(
+            @Parameter(
+                    description = "ID of the expense to add a payment to",
+                    required = true,
+                    example = "210"
+            )
+            @PathVariable Long expenseId,
+            @Parameter(
+                    description = "Data for the payment to be added",
+                    required = true,
+                    schema = @Schema(implementation = PaymentRequestDTO.class)
+            )
+            @RequestBody @Valid PaymentRequestDTO payment,
+            Authentication auth
+    ) {
+        User authenticatedUser = (User) auth.getPrincipal();
+        PaymentResponseDTO newPayment = expenseService.addPayment(payment, expenseId, authenticatedUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newPayment);
+    }
 
 }

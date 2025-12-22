@@ -9,6 +9,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -158,6 +160,16 @@ public class UserService {
         List<User> users = userRepository.findAll();
         
         return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
+    }
+
+    public List<UserResponseDTO> searchUsers(String search) {
+        Pageable limit = PageRequest.of(0, 10);
+
+        List<User> users = userRepository.searchByNameOrLogin(search, limit);
+
+        return users.stream()
+                .map(UserResponseDTO::new)
+                .toList();
     }
 
 }

@@ -27,62 +27,7 @@ public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
 
-    @Operation(
-            summary = "Add a payment to an expense",
-            description = "Registers a new payment for an existing expense."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Payment added successfully.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponseDTO.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid data provided.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden if the user is not a member of the hangout.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Expense or Payer not found.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal Server Error.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "User is not authenticated",
-                    content = @Content
-            )
-    })
-    @PostMapping("/{expenseId}/payments")
-    public ResponseEntity<PaymentResponseDTO> addPayment(
-            @Parameter(
-                    description = "ID of the expense to add a payment to",
-                    required = true,
-                    example = "210"
-            )
-            @PathVariable Long expenseId,
-            @Parameter(
-                    description = "Data for the payment to be added",
-                    required = true,
-                    schema = @Schema(implementation = PaymentRequestDTO.class)
-            )
-            @RequestBody @Valid PaymentRequestDTO payment,
-            Authentication auth
-    ) {
-        User authenticatedUser = (User) auth.getPrincipal();
-        PaymentResponseDTO newPayment = expenseService.addPayment(payment, expenseId, authenticatedUser.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(newPayment);
-    }
+
 
     @Operation(
             summary = "Delete an expense",

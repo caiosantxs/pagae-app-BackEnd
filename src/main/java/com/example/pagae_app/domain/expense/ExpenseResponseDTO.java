@@ -1,11 +1,13 @@
 package com.example.pagae_app.domain.expense;
 
+import com.example.pagae_app.domain.expense_shares.ExpenseShareDTO;
 import com.example.pagae_app.domain.payment.Payment;
 import com.example.pagae_app.domain.payment.PaymentResponseDTO;
 import com.example.pagae_app.domain.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Schema(description = "DTO for returning detailed expense data")
@@ -23,7 +25,14 @@ public record ExpenseResponseDTO(
         @Schema(description = "List of payments that make up the total amount")
         List<PaymentResponseDTO> payments,
 
-        boolean isPaid
+        boolean isPaid,
+
+        UserResponseDTO creator,
+
+        LocalDate date,
+
+        List<ExpenseShareDTO> shares
+
 ) {
         public ExpenseResponseDTO(Expense expense){
                 this(
@@ -35,7 +44,13 @@ public record ExpenseResponseDTO(
                                 ))
                                 .toList(),
 
-                        calculateIsPaid(expense)
+
+                        calculateIsPaid(expense),
+                        new UserResponseDTO(expense.getCreator()),
+                        expense.getDate(),
+                        expense.getShares().stream()
+                                .map(ExpenseShareDTO::new)
+                                .toList()
 
                 );
         }

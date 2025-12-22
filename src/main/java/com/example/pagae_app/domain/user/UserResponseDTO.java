@@ -12,17 +12,12 @@ public record UserResponseDTO(
         String name,
 
         @Schema(description = "Unique login for the user", example = "ana.silva")
-        String login,
+        String login
 
-        @Schema(description = "User's unique email", example = "ana.silva@example.com")
-        String email,
-
-        @Schema(description = "User's role", example = "ADMIN")
-        UserRole role
 ) {
         public UserResponseDTO(User user){
                 this(
-                        user.getId(), user.getName(), user.getLogin(), user.getEmail(), user.getRole()
+                        user.getId(), user.getName(), user.getLogin()
                 );
         }
 }

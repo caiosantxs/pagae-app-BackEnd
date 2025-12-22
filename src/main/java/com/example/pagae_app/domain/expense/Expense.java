@@ -1,5 +1,6 @@
 package com.example.pagae_app.domain.expense;
 
+import com.example.pagae_app.domain.expense_shares.ExpenseShare;
 import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.payment.Payment;
 import com.example.pagae_app.domain.user.User;
@@ -7,6 +8,7 @@ import jakarta.persistence.*;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +33,25 @@ public class Expense {
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments = new ArrayList<>();
 
-    // Remova o mappedBy e mude para ManyToOne
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_creator_id", referencedColumnName = "id", nullable = false)
     private User creator;
 
-    public Expense() {
+    @Column(name = "date", nullable = true)
+    private LocalDate date;
 
+    public List<ExpenseShare> getShares() {
+        return shares;
     }
+
+    public void setShares(List<ExpenseShare> shares) {
+        this.shares = shares;
+    }
+
+    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExpenseShare> shares = new ArrayList<>();
+
+    public Expense() {}
 
     public Expense(ExpenseRequestDTO data, HangOut hangOut) {
         this.hangOut = hangOut;
@@ -87,5 +100,11 @@ public class Expense {
     }
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+    public LocalDate getDate() {
+        return date;
+    }
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 }
