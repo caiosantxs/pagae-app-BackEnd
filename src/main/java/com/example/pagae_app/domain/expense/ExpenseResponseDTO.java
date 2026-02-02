@@ -34,7 +34,7 @@ public record ExpenseResponseDTO(
         List<ExpenseShareDTO> shares
 
 ) {
-        public ExpenseResponseDTO(Expense expense){
+        public ExpenseResponseDTO(Expense expense) {
                 this(
                         expense.getId(), expense.getDescription(), expense.getTotalAmount(), expense.getPayments().stream()
                                 .map(payment -> new PaymentResponseDTO(
