@@ -29,6 +29,8 @@ public record ExpenseResponseDTO(
 
         UserResponseDTO creator,
 
+        UserResponseDTO payer,
+
         LocalDate date,
 
         List<ExpenseShareDTO> shares
@@ -47,6 +49,7 @@ public record ExpenseResponseDTO(
 
                         calculateIsPaid(expense),
                         new UserResponseDTO(expense.getCreator()),
+                        new UserResponseDTO(expense.getPayer()),
                         expense.getDate(),
                         expense.getShares().stream()
                                 .map(ExpenseShareDTO::new)

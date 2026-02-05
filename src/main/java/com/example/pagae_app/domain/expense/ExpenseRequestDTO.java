@@ -16,5 +16,7 @@ public record ExpenseRequestDTO(
         @NotNull
         BigDecimal totalAmount,
 
-        List<Long> participantsIds
+        List<Long> participantsIds,
+
+        Long payerId
 ) {}

@@ -37,6 +37,10 @@ public class Expense {
     @JoinColumn(name = "user_creator_id", referencedColumnName = "id", nullable = false)
     private User creator;
 
+    @ManyToOne
+    @JoinColumn(name = "user_payer_id")
+    private User payer;
+
     @Column(name = "date", nullable = true)
     private LocalDate date;
 
@@ -107,4 +111,6 @@ public class Expense {
     public void setDate(LocalDate date) {
         this.date = date;
     }
+    public User getPayer() {return payer;}
+    public void setPayer(User payer) { this.payer = payer;}
 }
