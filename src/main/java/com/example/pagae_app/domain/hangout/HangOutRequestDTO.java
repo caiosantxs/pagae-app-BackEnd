@@ -11,8 +11,5 @@ public record HangOutRequestDTO(
         @NotNull
         String title,
 
-        @Schema(description = "Brief description of the HangOut", example = "Organização da viagem de fim de ano da turma.")
-        String description,
-
         List<Long> memberIds
 ) {}

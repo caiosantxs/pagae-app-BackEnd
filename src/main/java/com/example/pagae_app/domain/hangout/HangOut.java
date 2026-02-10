@@ -20,9 +20,6 @@ public class HangOut {
     @Column(name = "name", nullable = false)
     private String title;
 
-    @Column(name = "description", nullable = true)
-    private String description;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
     private User creator;
@@ -42,7 +39,6 @@ public class HangOut {
 
     public HangOut(HangOutRequestDTO data, User creator) {
         this.title = data.title();
-        this.description = data.description();
         this.creator = creator;
         this.creationDate = LocalDate.now();
         this.status = StatusHangOut.ATIVO;
@@ -62,12 +58,6 @@ public class HangOut {
     }
     public void setTitle(String title) {
         this.title = title;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
     }
     public User getCreator() {
         return creator;
