@@ -81,7 +81,6 @@ public class HangOutService {
             throw new SecurityException("Access denied: Only the creator of the hangOut can update");
         }
 
-        hangOut.setDescription(data.description());
         hangOut.setTitle(data.title());
 
         hangOutRepository.save(hangOut);
@@ -131,11 +130,53 @@ public class HangOutService {
     }
 
     @Transactional
-    public void finalize(Long id) {
+    public void finalize(Long id, Long currentUserId) {
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
         HangOut hangout = hangOutRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Hangout não encontrado"));
 
+        if(!hangout.getCreator().getId().equals(currentUserId)) {
+           throw new EntityNotFoundException("Acesso proibido: Apenas o criador do HangOut pode finalizá-lo");
+        }
+
         hangout.setStatus(StatusHangOut.FINALIZADO);
         hangOutRepository.save(hangout);
+    }
+
+    public void open(Long id, Long currentUserId) {
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        HangOut hangout = hangOutRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Hangout não encontrado"));
+
+        if(!hangout.getCreator().getId().equals(currentUserId)) {
+            throw new EntityNotFoundException("Acesso proibido: Apenas o criador do HangOut pode reabri-lo");
+        }
+
+        hangout.setStatus(StatusHangOut.ATIVO);
+        hangOutRepository.save(hangout);
+    }
+
+    @Transactional
+    public void joinHangout(Long hangoutId, Long currentUserId) {
+        HangOut hangout = hangOutRepository.findById(hangoutId)
+                .orElseThrow(() -> new EntityNotFoundException("Rolê não encontrado"));
+
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        HangOutMember newMember = new HangOutMember(hangout, user);
+
+        boolean isAlreadyMember = hangout.getMembers().stream()
+                .anyMatch(p -> p.getUser().getId().equals(user.getId()));
+
+        if (!isAlreadyMember) {
+            hangout.getMembers().add(newMember);
+            hangOutRepository.save(hangout);
+        }
+
     }
 }
