@@ -1,6 +1,6 @@
 package com.example.pagae_app.controllers;
 
-import com.example.pagae_app.domain.hangout.DashboardStatsDTO;
+import com.example.pagae_app.domain.dashboard.DashboardStatsDTO;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.services.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;

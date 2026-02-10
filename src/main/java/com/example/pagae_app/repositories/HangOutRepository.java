@@ -21,4 +21,6 @@ public interface HangOutRepository extends JpaRepository<HangOut, Long> {
     Page<HangOut> findByUserInvolvement(@Param("userId") Long userId, Pageable pageable);
 
     HangOut findHangOutsById(Long id);
+
+    List<HangOut> findTop3ByMembers_User_IdOrderByCreationDateDesc(Long userId);
 }
