@@ -414,8 +414,16 @@ public class HangOutController {
     }
 
     @PatchMapping("/{id}/finalize")
-    public ResponseEntity<Void> finalizeHangout(@PathVariable Long id) {
-        hangOutService.finalize(id);
+    public ResponseEntity<Void> finalizeHangout(@PathVariable Long id, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        hangOutService.finalize(id, authenticatedUser.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/open")
+    public ResponseEntity<Void> openHangout(@PathVariable Long id, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        hangOutService.open(id, authenticatedUser.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -474,6 +482,14 @@ public class HangOutController {
         User authenticatedUser = (User) auth.getPrincipal();
         PaymentResponseDTO newPayment = expenseService.addPayment(payment, expenseId, authenticatedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(newPayment);
+    }
+
+    @PostMapping("/{id}/join")
+    public ResponseEntity<Void> joinHangout(@PathVariable Long id, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        hangOutService.joinHangout(id, authenticatedUser.getId());
+
+        return ResponseEntity.ok().build();
     }
 
 }
