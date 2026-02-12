@@ -24,6 +24,8 @@ public record HangOutResponseDTO(
 
         StatusHangOut statusHangOut,
 
+        boolean hasPendingDebts,
+
         @Schema(description = "Expenses from hangout")
         List<ExpenseResponseDTO> expenses,
 
@@ -31,13 +33,14 @@ public record HangOutResponseDTO(
 
         List<PaymentActivityDTO> recentActivities
 ) {
-    public HangOutResponseDTO(HangOut hangOut) {
+    public HangOutResponseDTO(HangOut hangOut, boolean hasPendingDebts) {
         this(
                 hangOut.getId(),
                 hangOut.getTitle(),
                 hangOut.getCreator().getId(),
                 hangOut.getCreationDate(),
                 hangOut.getStatus(),
+                hasPendingDebts,
                 hangOut.getExpenses().stream()
                         .map(ExpenseResponseDTO::new).collect(Collectors.toList()),
                 hangOut.getMembers().stream().map(member -> new MemberDTO(
@@ -60,5 +63,9 @@ public record HangOutResponseDTO(
                         .limit(5)
                         .toList()
         );
+    }
+
+    public HangOutResponseDTO(HangOut hangOut) {
+        this(hangOut, false);
     }
 }

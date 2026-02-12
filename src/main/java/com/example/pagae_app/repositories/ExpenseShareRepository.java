@@ -19,18 +19,27 @@ public interface ExpenseShareRepository extends JpaRepository<ExpenseShare, Long
 
     List<ExpenseShare> findByUser_IdAndExpense_HangOut_Id(Long userId, Long expenseHangOutId);
 
-    // 1. A PAGAR: Soma tudo que o usuário atual DEVE (amountOwed) e que ainda não foi pago
     @Query("SELECT COALESCE(SUM(es.amountOwed), 0) FROM expense_shares es " +
             "WHERE es.user.id = :userId AND es.isPaid = false")
     BigDecimal sumTotalOwedByUserId(@Param("userId") Long userId);
 
-    // 2. QUANTIDADE DE PENDÊNCIAS: Conta quantas dívidas o usuário tem em aberto
     @Query("SELECT COUNT(es) FROM expense_shares es " +
             "WHERE es.user.id = :userId AND es.isPaid = false")
     Integer countPendingDebtsByUserId(@Param("userId") Long userId);
 
-    // 3. A RECEBER: Soma a dívida dos OUTROS, em despesas onde o usuário atual foi o PAGADOR
-    // Perceba que usamos "es.user.id != :userId" para não somar a parte que o usuário deve a ele mesmo.
+    @Query("SELECT DISTINCT es.expense.hangOut.id FROM expense_shares es " +
+            "WHERE es.user.id = :userId " +
+            "AND es.isPaid = false " +
+            "AND es.amountOwed > 0")
+    List<Long> findHangoutIdsWithPendingDebt(@Param("userId") Long userId);
+
+    @Query("SELECT DISTINCT es.expense.hangOut.id FROM expense_shares es " +
+            "WHERE es.user.id = :userId " +
+            "AND es.isPaid = false " +
+            "AND es.amountOwed > 0 " +
+            "AND es.expense.hangOut.id IN :hangoutIds") // <--- FILTRO IMPORTANTE
+    List<Long> findPendingDebtHangoutIds(@Param("userId") Long userId, @Param("hangoutIds") List<Long> hangoutIds);
+
     @Query("SELECT COALESCE(SUM(es.amountOwed), 0) FROM expense_shares es " +
             "JOIN es.expense ex " +
             "WHERE ex.payer.id = :userId " +

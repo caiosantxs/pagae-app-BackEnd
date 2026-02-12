@@ -7,6 +7,7 @@ import com.example.pagae_app.domain.hangout.StatusHangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
+import com.example.pagae_app.repositories.ExpenseShareRepository;
 import com.example.pagae_app.repositories.HangOutMemberRepository;
 import com.example.pagae_app.repositories.HangOutRepository;
 import com.example.pagae_app.repositories.UserRepository;
@@ -17,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class HangOutService {
@@ -33,6 +36,8 @@ public class HangOutService {
 
     @Autowired
     private ExpenseService expenseService;
+    @Autowired
+    private ExpenseShareRepository expenseShareRepository;
 
     @Transactional
     public HangOutResponseDTO create(HangOutRequestDTO data, Long creatorId) {
@@ -110,9 +115,31 @@ public class HangOutService {
 
     @Transactional(readOnly = true)
     public Page<HangOutResponseDTO> findHangOutsByUserId(Long userId, Pageable pageable) {
-        Page<HangOut> hangOuts = hangOutRepository.findByUserInvolvement(userId, pageable);
+        // 1. Busca a página do banco (como você já fazia)
+        Page<HangOut> hangOutsPage = hangOutRepository.findByUserInvolvement(userId, pageable);
 
-        return hangOuts.map(HangOutResponseDTO::new);
+        // Se a página estiver vazia, retorna logo pra economizar processamento
+        if (hangOutsPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // 2. Extrai apenas os IDs dos Hangouts dessa página
+        List<Long> hangoutIds = hangOutsPage.getContent().stream()
+                .map(HangOut::getId)
+                .toList();
+
+        // 3. Vai no banco verificar quais desses IDs possuem dívida pendente para este usuário
+        // (Isso executa apenas 1 query rápida, ao invés de 1 query por hangout)
+        List<Long> idsComDivida = expenseShareRepository.findPendingDebtHangoutIds(userId, hangoutIds);
+
+        // Transforma em Set para a busca ficar instantânea
+        Set<Long> setDeDividas = new HashSet<>(idsComDivida);
+
+        // 4. Mapeia usando o construtor novo (HangOut, boolean)
+        return hangOutsPage.map(hangout -> new HangOutResponseDTO(
+                hangout,
+                setDeDividas.contains(hangout.getId()) // Passa TRUE se o ID estiver no Set
+        ));
     }
 
 
@@ -177,6 +204,5 @@ public class HangOutService {
             hangout.getMembers().add(newMember);
             hangOutRepository.save(hangout);
         }
-
     }
 }

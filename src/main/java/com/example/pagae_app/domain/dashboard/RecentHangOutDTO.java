@@ -10,6 +10,7 @@ public record RecentHangOutDTO(
         String date,
         String status,
         BigDecimal total,
+        boolean hasPendingDebt,
         List<ParticipantBadgeDTO> participants
 ) {
 }
