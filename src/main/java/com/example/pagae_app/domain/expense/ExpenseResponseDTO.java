@@ -42,7 +42,8 @@ public record ExpenseResponseDTO(
                                 .map(payment -> new PaymentResponseDTO(
                                         payment.getId(),
                                         payment.getAmount(),
-                                        new UserResponseDTO(payment.getUser())
+                                        new UserResponseDTO(payment.getUser()),
+                                        payment.getDate()
                                 ))
                                 .toList(),
 

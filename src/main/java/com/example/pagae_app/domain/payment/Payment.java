@@ -5,6 +5,8 @@ import com.example.pagae_app.domain.user.User;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity(name = "payments")
 @Table(name = "payments")
@@ -24,6 +26,9 @@ public class Payment {
 
     @Column(nullable = false)
     private BigDecimal amount;
+
+    @Column(nullable = true)
+    private LocalDate date;
 
     public Payment() {}
     public Payment(PaymentRequestDTO data, Expense expense, User payer) {
@@ -56,5 +61,7 @@ public class Payment {
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
+    public LocalDate getDate() {return date;}
+    public void setDate(LocalDate date) {this.date = date;}
 
 }

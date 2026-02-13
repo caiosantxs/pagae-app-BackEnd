@@ -4,6 +4,7 @@ import com.example.pagae_app.domain.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Schema(description = "DTO for returning data about a single payment")
 public record PaymentResponseDTO(
@@ -14,5 +15,7 @@ public record PaymentResponseDTO(
         BigDecimal amount,
 
         @Schema(description = "Details of the user who paid")
-        UserResponseDTO user
+        UserResponseDTO user,
+
+        LocalDate date
 ) {}

@@ -55,7 +55,7 @@ public record HangOutResponseDTO(
                                         payment.getUser().getName(),
                                         expense.getDescription(),
                                         payment.getAmount(),
-                                        expense.getDate() != null ? expense.getDate().atStartOfDay() : LocalDateTime.now(),
+                                        payment.getDate() != null ? payment.getDate().atStartOfDay() : LocalDateTime.now(),
                                         payment.getUser().getId()
                                 ))
                         )

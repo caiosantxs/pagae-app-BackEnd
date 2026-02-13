@@ -1,5 +1,6 @@
 package com.example.pagae_app.domain.expense;
 
+import com.example.pagae_app.domain.expense_participants.ExpenseParticipant;
 import com.example.pagae_app.domain.expense_shares.ExpenseShare;
 import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.payment.Payment;
@@ -44,13 +45,8 @@ public class Expense {
     @Column(name = "date", nullable = true)
     private LocalDate date;
 
-    public List<ExpenseShare> getShares() {
-        return shares;
-    }
-
-    public void setShares(List<ExpenseShare> shares) {
-        this.shares = shares;
-    }
+    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExpenseParticipant> participants = new ArrayList<>();
 
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExpenseShare> shares = new ArrayList<>();
@@ -113,4 +109,16 @@ public class Expense {
     }
     public User getPayer() {return payer;}
     public void setPayer(User payer) { this.payer = payer;}
+    public List<ExpenseShare> getShares() {
+        return shares;
+    }
+    public void setShares(List<ExpenseShare> shares) {
+        this.shares = shares;
+    }
+    public List<ExpenseParticipant> getParticipants() {
+        return participants;
+    }
+    public void setParticipants(List<ExpenseParticipant> participants) {
+        this.participants = participants;
+    }
 }

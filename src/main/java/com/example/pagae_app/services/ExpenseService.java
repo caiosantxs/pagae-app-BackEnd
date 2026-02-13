@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class ExpenseService {
             payer = userRepository.findById(data.payerId())
                     .orElseThrow(() -> new EntityNotFoundException("Pagador não encontrado"));
         } else {
-            payer = creator; // Se não informou, assume que quem criou pagou
+            payer = creator;
         }
 
         if (!hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, payer.getId())) {
@@ -161,11 +162,12 @@ public class ExpenseService {
         Payment payment = new Payment();
         payment.setUser(currentUser);
         payment.setAmount(data.amount());
+        payment.setDate(LocalDate.now());
 
         expense.addPayment(payment);
         expenseRepository.save(expense);
 
-        return new PaymentResponseDTO(payment.getId(), payment.getAmount(), new UserResponseDTO(currentUser));
+        return new PaymentResponseDTO(payment.getId(), payment.getAmount(), new UserResponseDTO(currentUser), payment.getDate());
     }
 
     @Transactional
