@@ -42,6 +42,7 @@ public class HangOutController {
 
     @Autowired
     private ExpenseService expenseService;
+
     @Autowired
     private ExpenseShareService expenseShareService;
 
@@ -492,4 +493,44 @@ public class HangOutController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Delete an expense",
+            description = "Deletes an existing expense. This action can only be performed by the creator of the hangout."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Expense deleted successfully."
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden if the user is not the hangout creator.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Expense not found.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User is not authenticated",
+                    content = @Content
+            )
+    })
+    @DeleteMapping("/expense/{expenseId}")
+    public ResponseEntity<Void> deleteExpense(
+            @Parameter(description = "ID of the expense to delete", required = true, example = "210")
+            @PathVariable Long expenseId,
+            Authentication auth
+    ) {
+        User authenticatedUser = (User) auth.getPrincipal();
+        expenseService.deleteExpense(expenseId, authenticatedUser.getId());
+        return ResponseEntity.noContent().build();
+    }
 }
