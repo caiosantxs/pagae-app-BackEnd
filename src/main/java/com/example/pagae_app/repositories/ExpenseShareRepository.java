@@ -1,5 +1,6 @@
 package com.example.pagae_app.repositories;
 
+import com.example.pagae_app.domain.expense_shares.DevendoDTO;
 import com.example.pagae_app.domain.expense_shares.ExpenseShare;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,4 +47,27 @@ public interface ExpenseShareRepository extends JpaRepository<ExpenseShare, Long
             "AND es.user.id != :userId " +
             "AND es.isPaid = false")
     BigDecimal sumTotalReceivableByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT new com.example.pagae_app.domain.expense_shares.DevendoDTO(credor.id, credor.name, SUM(es.amountOwed)) " +
+            "FROM expense_shares es " +
+            "JOIN es.expense e " +
+            "JOIN e.payer credor " +
+            "WHERE es.user.id = :devedorId AND es.isPaid = false AND credor.id != :devedorId " +
+            "GROUP BY credor.id, credor.name")
+    List<DevendoDTO> findTotalOwedGroupedByCreditor(@Param("devedorId") Long devedorId);
+
+    @Query("SELECT new com.example.pagae_app.domain.expense_shares.DevendoDTO(devedor.id, devedor.name, SUM(es.amountOwed)) " +
+            "FROM expense_shares es " +
+            "JOIN es.expense e " +
+            "JOIN es.user devedor " +
+            "WHERE e.payer.id = :credorId AND es.isPaid = false AND devedor.id != :credorId " +
+            "GROUP BY devedor.id, devedor.name")
+    List<DevendoDTO> findTotalReceivableGroupedByDebtor(@Param("credorId") Long credorId);
+
+    // NOVO MÉTODO: Para buscar as entidades reais que vamos alterar no banco
+    @Query("SELECT es FROM expense_shares es " +
+            "JOIN es.expense e " +
+            "WHERE es.user.id = :devedorId AND e.payer.id = :credorId AND es.isPaid = false " +
+            "ORDER BY es.amountOwed ASC")
+    List<ExpenseShare> findDividasEntreUsuarios(@Param("devedorId") Long devedorId, @Param("credorId") Long credorId);
 }

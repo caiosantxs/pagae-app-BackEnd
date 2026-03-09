@@ -1,6 +1,7 @@
 package com.example.pagae_app.controllers;
 
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
+import com.example.pagae_app.domain.expense_shares.Devendo2DTO;
 import com.example.pagae_app.domain.payment.PaymentRequestDTO;
 import com.example.pagae_app.domain.payment.PaymentResponseDTO;
 import com.example.pagae_app.domain.user.User;
@@ -18,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -74,5 +77,24 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/descontos")
+    public ResponseEntity<List<Devendo2DTO>> listarDescontosMutuos(Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+
+        List<Devendo2DTO> descontos = expenseService.calculandoDescontos(authenticatedUser.getId());
+
+        return ResponseEntity.ok(descontos);
+    }
+
+    @PostMapping("/descontos/aplicar/{targetUserId}")
+    public ResponseEntity<String> aplicarDescontoMutuo(
+            @PathVariable Long targetUserId,
+            Authentication authentication) {
+
+        User authenticatedUser = (User) authentication.getPrincipal();
+        expenseService.realizandoDescontos(authenticatedUser.getId(), targetUserId);
+
+        return ResponseEntity.ok("Desconto mútuo aplicado com sucesso!");
+    }
 
 }

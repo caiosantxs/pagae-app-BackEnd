@@ -53,11 +53,12 @@ public class Expense {
 
     public Expense() {}
 
-    public Expense(ExpenseRequestDTO data, HangOut hangOut) {
+    public Expense(ExpenseRequestDTO data, HangOut hangOut, User creator, User payer) {
         this.hangOut = hangOut;
         this.description = data.description();
         this.totalAmount = data.totalAmount();
         this.creator = creator;
+        this.payer = payer;
     }
 
     public void addPayment(Payment payment) {

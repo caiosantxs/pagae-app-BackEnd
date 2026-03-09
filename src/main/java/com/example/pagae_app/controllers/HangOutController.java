@@ -2,6 +2,7 @@ package com.example.pagae_app.controllers;
 
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
+import com.example.pagae_app.domain.expense_shares.Devendo2DTO;
 import com.example.pagae_app.domain.expense_shares.ExpenseShareDTO;
 import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
 import com.example.pagae_app.domain.hangout.HangOutResponseDTO;
@@ -532,5 +533,12 @@ public class HangOutController {
         User authenticatedUser = (User) auth.getPrincipal();
         expenseService.deleteExpense(expenseId, authenticatedUser.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/descontinhos")
+    public ResponseEntity<List<Devendo2DTO>> listaDePossiveisDescontos(Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        List<Devendo2DTO> descontos = expenseService.calculandoDescontos(authenticatedUser.getId());
+        return ResponseEntity.ok(descontos);
     }
 }
