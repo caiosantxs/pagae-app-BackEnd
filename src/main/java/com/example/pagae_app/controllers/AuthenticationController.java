@@ -184,8 +184,8 @@ public class AuthenticationController {
 
     @PostMapping("/google")
     public ResponseEntity<GoogleTokenDTO> loginGoogle(@RequestBody GoogleTokenDTO googleTokenDTO) {
-        String jwtPagaAe = authService.loginComGoogle(googleTokenDTO);
-        return ResponseEntity.ok(new GoogleTokenDTO(jwtPagaAe));
+        GoogleTokenDTO jwtPagaAe = authService.loginComGoogle(googleTokenDTO);
+        return ResponseEntity.ok(jwtPagaAe);
     }
 
 }
