@@ -8,7 +8,6 @@ import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.repositories.ExpenseShareRepository;
 import com.example.pagae_app.repositories.HangOutMemberRepository;
 import com.example.pagae_app.repositories.HangOutRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

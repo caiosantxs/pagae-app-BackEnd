@@ -64,7 +64,6 @@ public interface ExpenseShareRepository extends JpaRepository<ExpenseShare, Long
             "GROUP BY devedor.id, devedor.name")
     List<DevendoDTO> findTotalReceivableGroupedByDebtor(@Param("credorId") Long credorId);
 
-    // NOVO MÉTODO: Para buscar as entidades reais que vamos alterar no banco
     @Query("SELECT es FROM expense_shares es " +
             "JOIN es.expense e " +
             "WHERE es.user.id = :devedorId AND e.payer.id = :credorId AND es.isPaid = false " +

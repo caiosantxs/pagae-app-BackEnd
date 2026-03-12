@@ -1,6 +1,5 @@
 package com.example.pagae_app.domain.expense_participants;
 
-import com.example.pagae_app.domain.hangout_member.HangOutMemberPK;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
