@@ -4,6 +4,7 @@ import com.example.pagae_app.domain.user.*;
 import com.example.pagae_app.infra.exceptions.InvalidTokenException;
 import com.example.pagae_app.infra.security.TokenService;
 import com.example.pagae_app.repositories.UserRepository;
+import com.example.pagae_app.services.AuthService;
 import com.example.pagae_app.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,6 +38,8 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuthService authService;
 
     @Operation(
             summary = "Authenticate a user",
@@ -177,6 +180,12 @@ public class AuthenticationController {
         } catch (InvalidTokenException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<GoogleTokenDTO> loginGoogle(@RequestBody GoogleTokenDTO googleTokenDTO) {
+        GoogleTokenDTO jwtPagaAe = authService.loginComGoogle(googleTokenDTO);
+        return ResponseEntity.ok(jwtPagaAe);
     }
 
 }
