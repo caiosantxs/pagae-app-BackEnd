@@ -1,6 +1,6 @@
 # 💸 PagaAê - Back-end API
 
-> API RESTful desenvolvida para o aplicativo PagaAê, um sistema de gestão e divisão de despesas. Este projeto é parte integrante do Trabalho de Conclusão de Curso (TCC).
+> API RESTful desenvolvida para o aplicativo PagaAê, um sistema de gestão e divisão de despesas.
 
 O back-end do PagaAê é responsável por gerenciar a regra de negócios, autenticação segura de usuários via Google, persistência de dados em nuvem e cálculos de divisão de contas, fornecendo dados estruturados para o front-end em Angular.
 
