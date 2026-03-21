@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend-pagaae:
+    image: caiogsant/pagaae-backend:latest
+    container_name: api-pagaae
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    restart: unless-stopped
+
+  frontend-pagaae:
+    image: caiogsant/pagaae-frontend:latest
+    container_name: web-pagaae
+    ports:
+      - "80:80"
+    depends_on:
+      - backend-pagaae
+    restart: unless-stopped

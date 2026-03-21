@@ -9,6 +9,7 @@ import com.example.pagae_app.domain.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -41,12 +42,14 @@ public class TokenService {
                     .build()
                     .verify(token)
                     .getSubject();
-        }catch (JWTVerificationException exception){
+        } catch (JWTVerificationException exception){
+            System.out.println("ERRO AO VALIDAR TOKEN: " + exception.getMessage());
             return "";
         }
     }
 
     private Instant generateExpirationTime() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        // Agora o token sempre valerá 2 horas exatas, não importa onde o servidor esteja
+        return Instant.now().plus(Duration.ofHours(2));
     }
 }

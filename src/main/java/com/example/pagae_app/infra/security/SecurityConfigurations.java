@@ -36,10 +36,11 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/forgot-password", "auth/reset-password").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers("/api/hangouts").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/auth/google").permitAll()
+                        .requestMatchers("/api/auth/google").permitAll()
+                        .requestMatchers("/error").permitAll() // AQUI ESTÁ O CAÇADOR DE FANTASMAS!
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -56,10 +57,6 @@ public class SecurityConfigurations {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Este é o Bean que "liga" seu CustomUserDetailsService e seu PasswordEncoder
-     * ao mecanismo de autenticação do Spring.
-     */
     @Bean
     public AuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -71,11 +68,12 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
-        // ⚠️ MUITO IMPORTANTE: Precisa liberar os cabeçalhos para o Angular conseguir mandar o Token!
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

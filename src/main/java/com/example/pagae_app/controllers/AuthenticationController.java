@@ -23,7 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("/api/auth")
 @Tag(name = "Authentication & User Management", description = "Endpoints for user authentication and registration.")
 public class AuthenticationController {
 

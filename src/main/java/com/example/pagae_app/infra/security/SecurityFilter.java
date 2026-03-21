@@ -29,12 +29,14 @@ public class SecurityFilter extends OncePerRequestFilter {
         if(token != null){
             var login = tokenService.validateToken(token);
 
-            if(login != null){
+            if(login != null && !login.isEmpty()){
                 UserDetails user = userRepository.findByLogin(login);
 
                 if (user != null) {
                     var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    System.out.println("USUÁRIO NÃO ENCONTRADO NO BANCO COM O LOGIN: " + login);
                 }
             }
         }

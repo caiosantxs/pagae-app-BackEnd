@@ -1,4 +1,7 @@
+/*
 package com.example.pagae_app.infra.cors;
+
+
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -10,8 +13,10 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
+                .allowedOrigins("http://localhost")
                 .allowedOrigins("http://localhost:4200")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH");
 
     }
 }
+*/
