@@ -40,7 +40,7 @@ public class SecurityConfigurations {
                         .requestMatchers("/api/hangouts").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers("/api/auth/google").permitAll()
-                        .requestMatchers("/error").permitAll() // AQUI ESTÁ O CAÇADOR DE FANTASMAS!
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -70,6 +70,7 @@ public class SecurityConfigurations {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedOrigins(Arrays.asList("https://pagae.page", "https://www.pagae.page", "http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
