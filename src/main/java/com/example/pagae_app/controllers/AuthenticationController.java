@@ -39,6 +39,7 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
+
     @Autowired
     private AuthService authService;
 
@@ -137,12 +138,13 @@ public class AuthenticationController {
     })
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordDTO dto) {
-        try{
+        try {
             userService.resetPasswordRequest(dto.email());
             return ResponseEntity.ok().body("Password reset email sent if the user exists.");
-        }catch(EntityNotFoundException e){
+        } catch(EntityNotFoundException e) {
             return ResponseEntity.ok().body("Password reset email sent if the user exists.");
-        }catch (Exception e){
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request.");
         }
     }
