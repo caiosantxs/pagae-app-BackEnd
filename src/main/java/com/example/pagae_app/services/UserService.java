@@ -9,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,9 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
-    @Value("${app.frontend.url:http://localhost:4200}")
-    private String frontendUrl;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -79,39 +75,34 @@ public class UserService {
         this.userRepository.delete(user);
     }
 
-    @Transactional
-    public void resetPasswordRequest(String userEmail) {
+    public void resetPasswordRequest (String userEmail){
         User user = this.userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // 1. Busca se já existe token e OBRIGA o banco a deletar na mesma hora
-        tokenRepository.findByUser(user).ifPresent(oldToken -> {
-            tokenRepository.delete(oldToken);
-            tokenRepository.flush(); // A MÁGICA ESTÁ AQUI! Força o DELETE imediato.
-        });
-
-        // 2. Cria o novo token limpo
         String token = UUID.randomUUID().toString();
-        LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(15);
+
+        LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(10);
 
         PasswordResetToken resetToken = new PasswordResetToken(token, user, expiryDate);
         tokenRepository.save(resetToken);
 
-        // 3. Envia o e-mail
         String resetUrl = "http://localhost:4200/reset-password?token=" + token;
-        String subject = "Recuperação de Senha - PagaAê";
+
+        String subject = "Recuperação de Senha - Pagaê App";
         String text = "Olá " + user.getName() + ",\n\n"
                 + "Você solicitou a redefinição de sua senha.\n"
                 + "Clique no link abaixo para criar uma nova senha:\n"
-                + resetUrl + "\n\n"
+                + token + "\n\n"
                 + "Se você não solicitou isso, por favor ignore este email.\n\n"
-                + "O link expira em 15 minutos.";
+                + "O link expira em 1 hora.";
 
         emailService.sendEmail(user.getEmail(), subject, text);
+
     }
 
     @Transactional
     public void resetPassword(String token, String newPassword) {
+
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new EntityNotFoundException("Token not found"));
 
@@ -122,16 +113,15 @@ public class UserService {
 
         User user = resetToken.getUser();
 
-        // Codifica e salva a nova senha
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Exclui o token usado para que não possa ser reaproveitado
         tokenRepository.delete(resetToken);
 
-        emailService.sendEmail(user.getEmail(), "Sua senha foi redefinida no PagaAê",
-                "Olá " + user.getName() + ",\n\nSua senha foi redefinida com sucesso. Se não foi você, entre em contato imediatamente.");
+        emailService.sendEmail(user.getEmail(), "Sua senha foi redefinida",
+                "Olá " + user.getName() + ",\n\nSua senha foi redefinida com sucesso.");
     }
+
 
     @Transactional
     public void updatePassword(UserUpdatePasswordDTO data, Long currentUserId) {
