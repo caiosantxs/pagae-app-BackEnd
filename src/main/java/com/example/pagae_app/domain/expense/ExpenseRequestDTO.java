@@ -9,7 +9,7 @@ import java.util.List;
 @Schema(description = "DTO para receber dados na criação de uma nova despesa")
 public record ExpenseRequestDTO(
 
-        @Schema(description = "nome da despesa", example = "Uber")
+        @Schema(description = "nome de uma despesa", example = "Uber")
         @NotNull
         String name,
 
