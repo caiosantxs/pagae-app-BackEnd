@@ -21,10 +21,7 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 50)
-    private String name;
-
-    @Column(name = "description", nullable = true)
+    @Column(name = "description", nullable = false)
     private String description;
 
     @Column(name = "total_amount", nullable = false)
@@ -58,7 +55,6 @@ public class Expense {
 
     public Expense(ExpenseRequestDTO data, HangOut hangOut, User creator, User payer) {
         this.hangOut = hangOut;
-        this.name = data.name();
         this.description = data.description();
         this.totalAmount = data.totalAmount();
         this.creator = creator;
@@ -125,12 +121,5 @@ public class Expense {
     }
     public void setParticipants(List<ExpenseParticipant> participants) {
         this.participants = participants;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }
