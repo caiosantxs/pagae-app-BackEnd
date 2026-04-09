@@ -3,6 +3,7 @@ package com.example.pagae_app.services;
 import com.example.pagae_app.domain.expense.Expense;
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
+import com.example.pagae_app.domain.expense.ExpenseUpdateDescriptionDTO;
 import com.example.pagae_app.domain.expense_participants.ExpenseParticipant;
 import com.example.pagae_app.domain.expense_shares.Devendo2DTO;
 import com.example.pagae_app.domain.expense_shares.DevendoDTO;
@@ -219,25 +220,17 @@ public class ExpenseService {
     public List<Devendo2DTO> calculandoDescontos(Long currentUserId) {
         List<DevendoDTO> listaDeQuemEuDevo = expenseShareRepository.findTotalOwedGroupedByCreditor(currentUserId);
         List<DevendoDTO> listaDeQuemMeDeve = expenseShareRepository.findTotalReceivableGroupedByDebtor(currentUserId);
-
         List<Devendo2DTO> listaDePossiveisDescontos = new ArrayList<>();
 
-        // Transforma a lista de quem ME DEVE em um Map (Dicionário) usando o ID como chave.
-        // Isso evita o duplo 'for' e deixa a busca instantânea.
         Map<Long, DevendoDTO> mapaQuemMeDeve = listaDeQuemMeDeve.stream()
                 .collect(Collectors.toMap(DevendoDTO::userId, dto -> dto));
 
-        // Percorre apenas as pessoas para quem EU DEVO
         for (DevendoDTO euDevo : listaDeQuemEuDevo) {
 
-            // Verifica se essa mesma pessoa também ME DEVE (Dívida Cruzada)
             if (mapaQuemMeDeve.containsKey(euDevo.userId())) {
                 DevendoDTO eleMeDeve = mapaQuemMeDeve.get(euDevo.userId());
 
-                // Calcula quem sai ganhando no final das contas
                 BigDecimal saldoLiquido = eleMeDeve.total().subtract(euDevo.total());
-
-                // Cria o objeto apenas com as pessoas que têm desconto possível
                 Devendo2DTO devendoCruzado = new Devendo2DTO(
                         euDevo.userId(),
                         euDevo.name(),
@@ -255,53 +248,47 @@ public class ExpenseService {
 
     @Transactional
     public void realizandoDescontos(Long currentUserId, Long targetUserId) {
-        // 1. Busca as fatias de despesa onde EU devo ao Marcos
         List<ExpenseShare> minhasDividas = expenseShareRepository.findDividasEntreUsuarios(currentUserId, targetUserId);
-
-        // 2. Busca as fatias de despesa onde o MARCOS deve a Mim
         List<ExpenseShare> dividasDele = expenseShareRepository.findDividasEntreUsuarios(targetUserId, currentUserId);
 
-        // Se um dos dois lados for zero, não há desconto cruzado para aplicar
         if (minhasDividas.isEmpty() || dividasDele.isEmpty()) {
             return;
         }
 
-        // Soma o total de cada lado
         BigDecimal totalEuDevo = minhasDividas.stream().map(ExpenseShare::getAmountOwed).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalEleDeve = dividasDele.stream().map(ExpenseShare::getAmountOwed).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // O valor do desconto é o MENOR valor entre os dois (ex: devo 20, ele deve 40 -> desconto é 20)
         BigDecimal desconto = totalEuDevo.min(totalEleDeve);
 
-        // Aplica o desconto nas MINHAS dívidas para com ele
         abaterDividas(minhasDividas, desconto);
-
-        // Aplica o MESMO desconto nas dívidas DELE para comigo
         abaterDividas(dividasDele, desconto);
 
-        // Salva tudo no banco (como o método tem @Transactional, se der erro em um, cancela tudo)
         expenseShareRepository.saveAll(minhasDividas);
         expenseShareRepository.saveAll(dividasDele);
     }
 
-    // Método auxiliar privado para varrer a lista e ir zerando as fatias
     private void abaterDividas(List<ExpenseShare> parcelas, BigDecimal descontoDisponivel) {
         for (ExpenseShare parcela : parcelas) {
             if (descontoDisponivel.compareTo(BigDecimal.ZERO) <= 0) break;
 
             if (parcela.getAmountOwed().compareTo(descontoDisponivel) <= 0) {
-                // O desconto quita essa parcela inteira
                 descontoDisponivel = descontoDisponivel.subtract(parcela.getAmountOwed());
                 parcela.setAmountOwed(BigDecimal.ZERO);
                 parcela.setPaid(true);
             } else {
-                // O desconto abate só um pedaço da parcela
                 parcela.setAmountOwed(parcela.getAmountOwed().subtract(descontoDisponivel));
                 descontoDisponivel = BigDecimal.ZERO;
             }
         }
     }
 
+    @Transactional
+    public void updateExpenseDescription(ExpenseUpdateDescriptionDTO data){
+        Expense expense = expenseRepository.findById(data.expenseId())
+                .orElseThrow(() -> new EntityNotFoundException("Expense NÃO ENCONTRADO"));
 
+        expense.setDescription(data.description());
+        expenseRepository.save(expense);
+    }
 
 }

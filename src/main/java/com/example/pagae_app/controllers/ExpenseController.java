@@ -93,4 +93,6 @@ public class ExpenseController {
         return ResponseEntity.ok("Desconto mútuo aplicado com sucesso!");
     }
 
+
+
 }

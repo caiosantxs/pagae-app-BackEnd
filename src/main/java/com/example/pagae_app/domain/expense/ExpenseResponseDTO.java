@@ -16,6 +16,9 @@ public record ExpenseResponseDTO(
         @Schema(description = "Expense's unique identifier", example = "210")
         Long id,
 
+        @Schema(description = "Nome da despesa", example = "Uber")
+        String name,
+
         @Schema(description = "Description of the expense", example = "Jantar no restaurante")
         String description,
 
@@ -38,7 +41,7 @@ public record ExpenseResponseDTO(
 ) {
         public ExpenseResponseDTO(Expense expense) {
                 this(
-                        expense.getId(), expense.getDescription(), expense.getTotalAmount(), expense.getPayments().stream()
+                        expense.getId(), expense.getName(), expense.getDescription(), expense.getTotalAmount(), expense.getPayments().stream()
                                 .map(payment -> new PaymentResponseDTO(
                                         payment.getId(),
                                         payment.getAmount(),
