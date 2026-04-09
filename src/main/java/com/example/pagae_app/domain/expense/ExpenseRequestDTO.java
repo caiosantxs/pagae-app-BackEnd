@@ -8,7 +8,8 @@ import java.util.List;
 
 @Schema(description = "DTO to receive data on create a new expense")
 public record ExpenseRequestDTO(
-        @Schema(description = "description of a expense", example = "Pizza")
+
+        @Schema(description = "nome de uma despesa", example = "Uber")
         @NotNull
         String description,
 
