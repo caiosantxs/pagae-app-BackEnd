@@ -1,5 +1,6 @@
 package com.example.pagae_app.repositories;
 
+import com.example.pagae_app.domain.hangout.HangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,6 @@ public interface HangOutMemberRepository extends JpaRepository<HangOutMember, Lo
         WHERE hm.hangOut.id = :hangOutId
     """)
     List<User> findUsersByHangOutId(@Param("hangOutId") Long hangOutId);
+
+    void deleteByUserAndHangOut(User user, HangOut hangOut);
 }

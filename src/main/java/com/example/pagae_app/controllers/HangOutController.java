@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -540,5 +541,25 @@ public class HangOutController {
         User authenticatedUser = (User) authentication.getPrincipal();
         List<Devendo2DTO> descontos = expenseService.calculandoDescontos(authenticatedUser.getId());
         return ResponseEntity.ok(descontos);
+    }
+
+    @DeleteMapping("/{hangOutId}/leave")
+    public ResponseEntity<?> leaveHangout(@PathVariable Long hangOutId, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        try {
+            hangOutService.leaveHangout(hangOutId, authenticatedUser.getId());
+
+            return ResponseEntity.ok().build();
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro inesperado ao tentar sair do rolê.");
+        }
     }
 }

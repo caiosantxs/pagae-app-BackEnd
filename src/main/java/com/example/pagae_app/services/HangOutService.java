@@ -7,10 +7,7 @@ import com.example.pagae_app.domain.hangout.StatusHangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
-import com.example.pagae_app.repositories.ExpenseShareRepository;
-import com.example.pagae_app.repositories.HangOutMemberRepository;
-import com.example.pagae_app.repositories.HangOutRepository;
-import com.example.pagae_app.repositories.UserRepository;
+import com.example.pagae_app.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,6 +35,8 @@ public class HangOutService {
     private ExpenseService expenseService;
     @Autowired
     private ExpenseShareRepository expenseShareRepository;
+    @Autowired
+    private ExpenseRepository expenseRepository;
 
     @Transactional
     public HangOutResponseDTO create(HangOutRequestDTO data, Long creatorId) {
@@ -197,5 +196,20 @@ public class HangOutService {
             hangout.getMembers().add(newMember);
             hangOutRepository.save(hangout);
         }
+    }
+
+    @Transactional
+    public void leaveHangout(Long hangOutId, Long currentUserId) {
+        HangOut hangOut = hangOutRepository.findById(hangOutId)
+                .orElseThrow(() -> new EntityNotFoundException("Rolê não encontrado"));
+
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        if (expenseRepository.hasPendingExpenses(currentUserId, hangOutId)) {
+            throw new IllegalStateException("O usuário ainda possui despesas pendentes, portanto não pode sair do rolê");
+        }
+
+        hangOutMemberRepository.deleteByUserAndHangOut(user, hangOut);
     }
 }
