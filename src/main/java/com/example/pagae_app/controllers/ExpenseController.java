@@ -1,17 +1,21 @@
 package com.example.pagae_app.controllers;
 
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
+import com.example.pagae_app.domain.expense.UpdateDescriptionDTO;
 import com.example.pagae_app.domain.expense_shares.Devendo2DTO;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.services.ExpenseService;
+import com.example.pagae_app.services.HangOutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,8 @@ public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
+    @Autowired
+    private HangOutService hangOutService;
 
     @Operation(
             summary = "Update an expense",
@@ -92,7 +98,5 @@ public class ExpenseController {
 
         return ResponseEntity.ok("Desconto mútuo aplicado com sucesso!");
     }
-
-
 
 }

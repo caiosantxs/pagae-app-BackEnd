@@ -2,6 +2,7 @@ package com.example.pagae_app.controllers;
 
 import com.example.pagae_app.domain.expense.ExpenseRequestDTO;
 import com.example.pagae_app.domain.expense.ExpenseResponseDTO;
+import com.example.pagae_app.domain.expense.UpdateDescriptionDTO;
 import com.example.pagae_app.domain.expense_shares.Devendo2DTO;
 import com.example.pagae_app.domain.expense_shares.ExpenseShareDTO;
 import com.example.pagae_app.domain.hangout.HangOutRequestDTO;
@@ -560,6 +561,25 @@ public class HangOutController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro inesperado ao tentar sair do rolê.");
+        }
+    }
+
+    @PatchMapping("/{hangOutId}/expenses/{expenseId}/description")
+    public ResponseEntity<?> updateExpenseDescription(
+            @PathVariable Long hangOutId,
+            @PathVariable Long expenseId,
+            @RequestBody @Valid UpdateDescriptionDTO dto,
+            Authentication auth) {
+
+        User authenticatedUser = (User) auth.getPrincipal();
+
+        try {
+            expenseService.updateExpenseDescription(hangOutId, expenseId, dto.description(), authenticatedUser.getId());
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

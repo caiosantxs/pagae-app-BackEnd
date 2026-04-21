@@ -283,12 +283,19 @@ public class ExpenseService {
     }
 
     @Transactional
-    public void updateExpenseDescription(ExpenseUpdateDescriptionDTO data){
-        Expense expense = expenseRepository.findById(data.expenseId())
-                .orElseThrow(() -> new EntityNotFoundException("Expense NÃO ENCONTRADO"));
+    public void updateExpenseDescription(Long hangOutId, Long expenseId, String newDescription, Long currentUserId) {
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada"));
 
-        expense.setDescription(data.description());
-        expenseRepository.save(expense);
+        if (!expense.getHangOut().getId().equals(hangOutId)) {
+            throw new IllegalArgumentException("Esta despesa não pertence a este rolê.");
+        }
+
+        if (!(expense.getCreator().getId().equals(currentUserId) || expense.getPayer().getId().equals(currentUserId))) {
+            throw new IllegalStateException("Apenas o criador ou pagador da despesa pode alterar a descrição.");
+        }
+
+        expense.setDescription(newDescription);
     }
 
 }
