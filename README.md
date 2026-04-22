@@ -1,6 +1,6 @@
 # PagaAê - Back-End
 
-Repositório do Front-End: https://github.com/caiosantxs/pagae-app-FrontEnd
+Repositório do Front-End: https://github.com/caiosantxs/pagae-app-front
 
 ## 📌 Introdução
 
