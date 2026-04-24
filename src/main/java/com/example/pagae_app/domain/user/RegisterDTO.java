@@ -20,9 +20,6 @@ public record RegisterDTO(
 
         @Schema(description = "User's password", example = "strongPassword123")
         @NotBlank @Size(min = 8)
-        String password,
-
-        @Schema(description = "User's role", example = "ADMIN")
-        UserRole role
+        String password
 ) {
 }

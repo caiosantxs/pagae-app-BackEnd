@@ -68,7 +68,6 @@ public class UserService {
     public void delete(Long id, Long currentUserId) throws SecurityException{
 
         User currentUser = this.findById(currentUserId);
-        System.out.println(currentUser.getRole());
 
         if (!currentUser.getRole().equals(UserRole.ADMIN)) {
             throw new SecurityException("You do not have permission to delete this user");
@@ -84,21 +83,19 @@ public class UserService {
         User user = this.userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // 1. Busca se já existe token e OBRIGA o banco a deletar na mesma hora
+
         tokenRepository.findByUser(user).ifPresent(oldToken -> {
             tokenRepository.delete(oldToken);
-            tokenRepository.flush(); // A MÁGICA ESTÁ AQUI! Força o DELETE imediato.
+            tokenRepository.flush();
         });
 
-        // 2. Cria o novo token limpo
         String token = UUID.randomUUID().toString();
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(15);
 
         PasswordResetToken resetToken = new PasswordResetToken(token, user, expiryDate);
         tokenRepository.save(resetToken);
 
-        // 3. Envia o e-mail
-        String resetUrl = "http://localhost:4200/reset-password?token=" + token;
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
         String subject = "Recuperação de Senha - PagaAê";
         String text = "Olá " + user.getName() + ",\n\n"
                 + "Você solicitou a redefinição de sua senha.\n"
@@ -122,11 +119,9 @@ public class UserService {
 
         User user = resetToken.getUser();
 
-        // Codifica e salva a nova senha
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Exclui o token usado para que não possa ser reaproveitado
         tokenRepository.delete(resetToken);
 
         emailService.sendEmail(user.getEmail(), "Sua senha foi redefinida no PagaAê",

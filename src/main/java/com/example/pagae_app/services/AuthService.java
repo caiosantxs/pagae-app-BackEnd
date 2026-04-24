@@ -60,10 +60,10 @@ public class AuthService {
                 return new GoogleTokenDTO(user.getId(), user.getName(), tokenService.generateToken(user));
 
             } else {
-                throw new RuntimeException("Token do Google inválido!");
+                throw new SecurityException("Token do Google inválido!");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao validar token do Google: " + e.getMessage());
+            throw new SecurityException("Erro ao validar token do Google: " + e.getMessage());
         }
     }
 

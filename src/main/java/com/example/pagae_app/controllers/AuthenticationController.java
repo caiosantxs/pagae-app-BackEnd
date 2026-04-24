@@ -22,7 +22,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = {"https://pagae.page", "http://localhost:4200"})
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication & User Management", description = "Endpoints for user authentication and registration.")

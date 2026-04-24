@@ -7,6 +7,7 @@ import com.example.pagae_app.domain.hangout.StatusHangOut;
 import com.example.pagae_app.domain.hangout_member.HangOutMember;
 import com.example.pagae_app.domain.user.User;
 import com.example.pagae_app.domain.user.UserResponseDTO;
+import com.example.pagae_app.exception.NotFoundException;
 import com.example.pagae_app.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,9 +94,9 @@ public class HangOutService {
     @Transactional
     public void addMemberToHangOut(Long hangOutId, Long userId, Long currentUserId) {
         HangOut hangOut = hangOutRepository.findById(hangOutId)
-                .orElseThrow(() -> new RuntimeException("HangOut not found"));
+                .orElseThrow(() -> new NotFoundException("HangOut not found"));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         boolean isCurrentUserMember = hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, currentUserId);
         if (!isCurrentUserMember) {
@@ -104,7 +105,7 @@ public class HangOutService {
 
         boolean alreadyExists = hangOutMemberRepository.existsByHangOutIdAndUserId(hangOutId, userId);
         if (alreadyExists) {
-            throw new RuntimeException("Member already exists");
+            throw new IllegalStateException("Member already exists");
         }
 
         HangOutMember hangOutMember = new HangOutMember(hangOut, user);
@@ -208,6 +209,10 @@ public class HangOutService {
 
         if (expenseRepository.hasPendingExpenses(currentUserId, hangOutId)) {
             throw new IllegalStateException("O usuário ainda possui despesas pendentes, portanto não pode sair do rolê");
+        }
+
+        if (currentUserId.equals(hangOut.getCreator().getId())) {
+            throw new IllegalStateException("O usuário autenticado é o criador do rolê, portanto, para sair deve excluí-lo");
         }
 
         hangOutMemberRepository.deleteByUserAndHangOut(user, hangOut);
