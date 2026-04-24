@@ -43,7 +43,6 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception){
-            System.out.println("ERRO AO VALIDAR TOKEN: " + exception.getMessage());
             return "";
         }
     }
